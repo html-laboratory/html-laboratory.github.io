@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",{
+					"handleEvent":function(e){
+						var h1=document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1"));
+						"ontouchend" in window&&(document.body.className="touch");
+            h1.textContent=document.title=location.hostname+location.pathname.substring(0,location.pathname.length-1);
+						e.target.removeEventListener(e.type,this); //iOS,Edge
+					}
+				},{
+					"once":true,
+					"passive":true
+				});
+			}());
+		</script>
+	</body>
+</html>
