@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Speech</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea{
+					box-sizing:border-box;
+					width:100%;
+				}
+				form :invalid{
+					outline:thin red solid;
+				}
+				label>img{
+					width:1em;
+					height:1em;
+					vertical-align: middle;
+				}
+				input[type="range"]{
+					width:calc(100% - 5em);
+					vertical-align: middle;
+				}
+				select,input[type="button"]{
+					width:100%
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<!--https://dvcs.w3.org/hg/speech-api/raw-file/tip/speechapi.html-->
+		<form>
+			<div>
+				<textarea rows="25" id="text" autofocus="autofocus" required="required" placeholder="I love you."></textarea>
+			</div>
+			<div>
+				<div>
+					<label for="volume">
+						<img src="data:image/png;base64,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" alt="Volume Down" title="Volume Down" />
+					</label>
+					<input type="range" id="volume" title="Volume" value="1" min="0" max="1" step="any" />
+					<label for="volume">
+						<img src="data:image/png;base64,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" alt="Volume Up" title="Volume Up" />
+					</label>
+				</div>
+				<div>
+					<label for="rate">
+						<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAAABnRSTlMA/wD/AP83WBt9AAAFDElEQVR4AcWV8WtaVxhA9+eVdZRQQgmSZU7EiRORLEgmqTzCm4iIiDxERERERERExIkT65wUsSIiUiQLiU1dlpUSgg0S0iDZDhWK91o6k7T0cn56933nXOWKX/37hZYcnk6nvz15tu2O6my+FbNnxey9Ax4kqBCi/Vj4xV//WJzaA2tgzRm3+vNKvOpNNXzp28Ag40hQIUSL/MPhwxd/P7L6dDtxR7hS6QyPXo1PzibHp7eHcSSoEKJFTkIOX15dmbY1nZJUk08PTsaD0Vmpc5RtHmQa++lbwSDjSFAhRIucBCEh/OuTZ6ub4a1wtT88rXRHiepeqr7/SUCFEC1yEoSE8JYa21Azqdqg2hvF31WTnwhUCNEiJ0FICK/ZNWuwlG8eJGt7iQWS9T3p+U1hHDkJQkJ41a7xVaRqe/HqQCJafu7OdiKlflLavSHISaxK4Uf2EE9jleexsgwz1f6Jkum6Um0OkagMeHgLkJMgJIftoUqk1IuW+hGBHgPX19cXV9Ns+2gz3lRSrWi5D+wuD1pUJAjJX7VNK4cK3XCxN0+o2GPs4vKKNuv1+WWkumeNNNR0a+binSVBToKQFA7atFIw39EK3Xl4QntCeG7tvxqrua4pVHOnWxh5bRlQkSAkhq0BW7AYyLaD+XYgJ6AVOrOwtFoHrzcTTZNW9WZaoUIHrzAoghY5CUJC+KHVb/EXPOmmP9uex5dpBXJSWFjF7sgYqpHnzWBOmJVAToKQHDb58juxOvPedPM9vO3LtiYXUlhYHCtWG+h8ZYtW8WaakmEGD5GTWAhbfCZfzq6VXfG6O/X0PWqyQXsxvLj4S/DmOqvugi1U8aafeuYkgBY5CUJS2GvyZm3BEmyFK65YbTdRByXBORrLhGdrb3TmiNZXlOxmuMKhMaBCODOTICSE+dM2ejLWYJFt6zvsWskRLm9HKkq8fn5xeX2T1d47cURrGOyh8syGFjkJQmLYRDhtCRSsgeJ7LOAvMDye3Cz86uw8Umib/ZKtQIKQFFYN7pQlkGd7HrM/b9OKy4dPx5NkpWeh4c1JKuQkCAnhB0bVoKYs/pzFn5/H7MvZgoVlwtztYnOwqRX1nizHJSOpkJMgJIUVw27S7GMmNw/30Br4n/B0et3oDZ2Rst6dMQkGAeQkCAnhbwyKfjdh9mbZnod7aPXnPxLuH5y4E9UNNW3wZKRZCeQkCElh14YSN3kzEtxDvqIPhocnp8FsQ+9O69UUby4DCUILYVfM5ElLGN1pDiuFX48n8VKb3fXdpJHXloaEHP5a71x3RY3uFKJ5uIdmX2Y8uZglJxeXhUbf6s/qlARbvLA8yEkQWgjvRIxq0qim5uE6cNLLqynVenffEczrXHE9H5SqelOSJBbDjnVnxKAmJbgONl+m2R+qsTLJDSXBw1tDgpAY3nDonGHDLl4ZTsqlWHfF5K0bgpwEIfF3rN9ac2h6Jc5HXICHkLgjyEkQEsIGu+uh3b+hxPhwn40YCUJCOJpI3zO4dDsRtj8TyEkQEsLDo6M18zYn4sbza/vkoEVOgpAQfvPmzZPf/+DKrdj9HI333hG7M1FAiBY5CUJCmJ/py5cvq7X6tz8+vmdUON2jbU3nDN0RJKgQokVOgpAQZr19+/bw8HAwGEQTmR9++uWhcef+dz/f//7xrWEcCSqEaJGTICSHZ+3RaPTnZ1hoZ1UhLK3z8/Pj4+PhcHhw54UEFcKFCOEvtP4DUqZT1m1jcmoAAAAASUVORK5CYII=" alt="Rate Down" title="Rate Down" />
+					</label>
+					<!--Rate:<input type="range" id="rate" value="1" min="0.1" max="10" step="any" />-->
+					<input type="range" id="rate" title="Rate" value="1" min="0.1" max="2" step="any" />
+					<label for="rate">
+						<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAAABnRSTlMA/wD/AP83WBt9AAAFD0lEQVR4AcWV8WsadxyG9+eVdZRSSgnSOSfixIlIF0ImViQ4ETkOkSNIEDlERETkECeZWJeFIGkIQUqQrCQ2dVlWSglWRKxItodcyfxevAhJSz+8P9h77/M8F/1av/r3C41RPJlMfnv2fDmSsnil+67ofVfsFokCAQUQ7HXiV3/94/Yr9zzxBb/qkbWQWo/lNqX8TcIi60BAAQQLfLb46NXfjzySJaAuJWu13c7xm97p2eDk3c3DOhBQAMECR2EUj8Zj57JiCWXD2a3D0167e1bdPS42DwubL/M3CousAwEFECxwFIgE8a/Pnj98klxM1l903tX2upn6QW7j5ScJKIBggaNAJIgXw2lruJBrtOutrnphzX6igAIIFjgKRIJ4wad4ElWteZhtHGSmIv6TmLfz7gSOApEgfuhTeCtyjQO13r5MqrYva63pK+bt/ABHgUgQP/KtcjVd20+v/59MvV1odgLZndT6vlprc2V+ax7gKBAZxb7V2lq1laq+WPuYFreen59vHbxZVJtKeS+9zsV5rUnAsoLCKOYd8Crrq+W9ZKWlZ7XSYmE4GkNvn/SWMs1oYYf9+a1JgKNAZBAnvEo1oe3y7Hp4DX0A+mLe9IaB/M6yupWszG9nhhUUiESxJ+5NVOLFnYS2Ey99jFLevUQzw/EkVm55kg1F272+xcEN0wELHAUiQfzAI7vlcjTflIs7eqTCdrwkoPVJNw5s8VqssA3drL3YBSIEOApERrFT0gLpDXZi+SbhPqm4PRiCNk51r7sgVVeyW8PR7NYiVUOZTVBAdBqvgaO4InZLTqnkU9aD6kYkt0XC2U3WZoqZvc5bp1I/649mtq3OW6tcfZKso9RpYIGjQGQQx5yxojdRJYvJWjDdCKk8waaZmDkbjPhczVp+ndxKzSaVg2oDoE5GgUgQ86PtiBY8iQq15yKcQH+q3h+Ozm86o/EkkmvaJQ0aWOAoEIliJ+K8O172xCt6OAi4ewPENx9tq+2SPzKBo0BkEIftkZw7rlHrccmaV6lcIx6OmYlZOxiOFG3bHi1dAoGjQCSI7znC9nDOLZfcsqbHJZW8ibKZ+ORtL5rbOOsPZ7an7/orat0WLcKZSgkFIoM4ZF/JuqSiSy7p4QR64rPF+51TX6LskEpm7ROlbI8WgEwHOApEgvgbe8i2knHFitR6OIEeWbuKbuy+pLJF8te0WCEYAhwFIoM4aA2pzljhMpxA3pxpNJ9nvr5nDec4I7QuybRlfWZQILoiDqad7OgBHcnzmJdovlfxwsbjUMYxtzUPCqP4a5v/cTDliOTY1MMJdEmF3mCoH6XAWsUCd7qNmbQmAY4C0RVxYM0RzjrCOT0cBNDjyYTD4pEK/DVsCm3UpDVNFsVV8dJj/5o9nL0MB8EnF8ubLyBa4XJxTjs/KBCJYuuSxZ+0r2Ts4alwa0i1iRdN2vkBjgKR+D22LS4sKbYL0FRUIl4xa+cHOApEgtjuCz7wydZQmhP/2ZJGgUgQpzL5O/agJbBG/ZkCHAUiQdw5Pl5wLfNEnHi+bZ88YIGjQCSI379//+z3Pzhy930yj8Z9F0nfOikCECxwFIgEMf8PvH79ut7Y+PbHp3ccIZ7u0bJi8a/eMkBAAQQLHAUiQcx8+PDh6Oio3W6nMoUffvrlgSNw97uf737/9MZhHQgogGCBo0BkFOvubrf752cYsLpVFIvT7/dPTk46nc7hrQcIKIBXLYi/zPwHF/6S8FkzlL4AAAAASUVORK5CYII=" alt="Rate Up" title="Rate Up" />
+					</label>
+				</div>
+				<div>
+					<label for="pitch">
+						<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAAABnRSTlMA/wD/AP83WBt9AAAEQ0lEQVR4AcXV8UuidxzA8f0h+2HsL9hfcYwa4ziiHc3zJOTOkwdnniciTsKJhGvyICISD+GJC3ESEiHuwYlIC4mIiJCIW7XO3Q+HREhERWx7tzjX93nUnqyjhw+hj8/n/ZL6Qp/8c0+XFj4/P//1t9994bhJCj56NnnLIUKKINl+8J9v/7J7Iw/tUya/4pTzoZQazVbkXHWAYZF1IqQIkiXeHf5j9+03L37gOZ9SKq/t7L9vvzs4arb+m4ObzeUK60RIESRLHEILn5ydPX/1o2UyFckuvXl32GgequvN+fpefnln4GGdCCmCZIlDAAnworo06or5FXVzr1XeaM7VtvkCuVsPEVLl9SZZ4hBAAuwKxK3hbK7WqGw0M9UL9Q6HIFniEEAC/O13P7niiwv1iy84V737IUscAkiAHzui/Cqyta10pZH5MPzinUrNFCsPMP5MfVbd7NR4QRwCSISdsm9GTZc3U+VGZ9hsH5/9PdDFgWL9ao04BJAW9iZLSmljVtXOAOrRyZm+QxxCD0c9ieJMcV0prStF7dwU1hfIEocAEuBRx7Q7sZhYWE0urnUd42qvAnEIIBGWIhy5WGElvrAaL3SZVGndiMpjXdfJEocAEmH7lFMuRHPLsfmV2Hy96xTr2/1VHui1S5Y4BJAGDkvRfDBdkfPLPNFrtvZbvdTt/VafRbLEIYAEeMQWkqbznmQplK5GsrU+0z4+0avc7L9FljgEkAYOStM5d6LI+BSVbxfOVEPpymSqzFvvjOpV1MBsmZuMHuYmwwM8xsOssMg6N0nxliwDASTA/NO2R7L88Tl4/GQ8ySI/v/SkPh2TPzPHPv8wX9iSD7ypqypvudl5gIdZeeBJdWqdFxBAWtg2NeeMLbji/49DLqw09kkPcK1u7bN+tUYcQgdbA7ZwxinPO2MFzRy2j2+qsqLvEIcAEuCH475noZQjmnfI8/q5Kdw1QhwCSAN7rcFZ/vh83HWMq70KxCGANLDHGlSk6Wyv8ScXjKg81icCASTAX1vc45Mz9sic1HuUwlJ/tbK61WedOASQBnaNB5L2qUz/WW3s9VLXtvauXYcAEuCvzE6LP2ELp21T18xB+0ivcvPaReIQQBrYYfbFOXW28PWjh41sEYcAEuAhk3QBB2f5+NqxhQSbt0a2iEMAifCYZPLKnDpOvJFxy9lLlRcGV4hDAImHyyyNuaOcOuukYnASuXIyVzH+PHEIIAEed3hHpBCnjo8/1gQSEEAC/PrnX4bMHrMvhv2RhjgEkAC/b7UeW118I4s/bgkk7nzIEocAEmCOSW2pPmSyj0hhvtoF70/c0cQJkiUOASTAXKenp9Xa0pMXr4Ys3lFHmIPAITTfYlgnQoogWeIQQALcsXd3d5X03POJ7x9ZXMNPJoafvhx+OjHQvGSdCCmCZC9VERavdrvdbDZ3dnbe3PoiQoqgXgG+n+ve4H8Bcl6WUKdUyz0AAAAASUVORK5CYII=" alt="Pitch Down" title="Pitch Down" />
+					</label>
+					<input type="range" id="pitch" title="Pitch" value="1" min="0" max="2" step="any" />
+					<label for="pitch">
+						<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAAABnRSTlMA/wD/AP83WBt9AAAE/klEQVR4AcWX32taZxyHc7W/YuyyF7vY9RhjF71MSykhdCWzVkRaKwdnbSoHySQ4OUjm5CByEBFx4kScSBARJy6IZCIhFAkipXSmW10ZRUoIZaylnO1JLqzv0bj8aOiXD8Pznu/neaS+dHTu3/c0RvGbN29+/uVXrxI1Sf6FW6tnDBBQAMHOEv/+9E+HvHbVETStJFxqIZCqhXMbar5xilCkDgQUQLDAp4t/23365Z1v2fMmqvUH/T+e7z978XIwPMyLE+awQh0IKIBggaMwiv95/fr2/e8sq6m13ObjZ3u9wV6tMyi2nxRa/VOHOhBQAMECR4FIEJdrm9fckZVErftkWN8ZZJuP+AL5MwcIqHpnABY4CkSC2O2L2pRcvtnb2BlkGgfWGYGVbjyKVLuRSpcPPM7eBwgWOApEgvirr793R8ul9gE025gVKKn6w0h5R6v2CB945HB2CyxwFIgE8XVnmD+KXPNheqOXOTq8Tda70XLHnWzph+NOtXjk8H+LwFEgEsUu1RuvpevdVL03I9yBSKljjtT1seGRQ17N7gJHgcgolmPVRHUnWTsy8UpHXd82qTV9YjjkFQsz6sBRTIrDHq1CM1HtJCpTEit31OK2Q6sP9/+eFHNoj9bDxW3WptbBAkeBSBBfc4aWtbJWovlgMpyHi1tysrHZG+hHDK8krR4qbM2AoEAkiqU1rlxkfSta2o6uGxMutH3pppJv6zNnvfWYNZYnCWCBo0Akih1Bl7oezrcixa1IsT2KWmiH8i1fqnE9WNKPMUvB0mq6SYXiOAcscBSIDGJFChf86Q210GKDEPrBbNOb3Ph8Oa0fe1imQpH6CAUWOApEgnjRHpBCBU+sGkg31nJNQpRMw5uofYH1hEOFIvURCixwFIgMYr8Uyi9rFUKHb0dtNVVfUgrP916eVEyFInUlvQEKIFiCApEg5n/ajrUcPz4Xj/8ST6zijVe7/b/0Uw1F6kBAjbAoEBnF9mDWFSm5o2Ph8fCEmkcryzHCt6lcllPjDh455BULrLE83h0FOIoJsc1nVzIuteiKrE+PehApXPzYrOoTwyGvWCBHE4ooEAniq1bvrUDKGS441eLUOEIFsz97wRQeDPcmxRxeMIVYYO0oAnAUiAxi2eZP8uPzejKcWwPZi06t0NjRj5his3tR0libAUGByCD22PwJKZSbjCOUsymZK574kj+jzxxTIMsay1SmolAgEsRXLMvW1bhjLSuJ4cQaSC/I8Y8W/foxhrVFOU5lKgoFIoPYbfXFHMGMIVZ/asETm/vMqR97WKZCcZKGApEgvmx2WVY0u5K2B9/Gwk/i0eY+degnnA8uuhZkzepPjtOAo0BkEDvN3ii3zq68jWkl/uFlmX8EnFT8bLj3iSlg9iXGgXxGgUgQz5ukA7E/yevxvODvy1PNdu+JAQUcBSJRvCSZZJVbx40/tyRQIBIvl1laWg5z62yriXMKcBSIBLHVKS9KAW4dr88rPg0FIkH8w48/zZs9Zm8E9zkFOApEgvj5cHjd5uYbWVaiFp/2zgMWOApEgph72Nxsz5sci5LCVzvQr2jvKFGAYIGjQCSImVevXjWamzfu3J+3yNecCheBS2g+Q6gDAQUQLHAUiATxyL27u5tIZ2/f/WbB4r504+6lm/cu3bx7qtyjDgQUQLBjVlE8mv39/cFg0O/3H595gIACOGlB/H7mvYn/A5eXnWLywSJAAAAAAElFTkSuQmCC" alt="Pitch Up" title="Pitch Up" />
+					</label>
+				</div>
+				<div>
+					<select id="lang" title="Language">
+						<option value="Native">Native</option>
+					</select>
+				</div>
+			</div>
+			<div>
+				<input type="button" id="speak" value="Speak" />
+			</div>
+		</form>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function getVoices(){
+						var voices=speechSynthesis.getVoices();
+						var option,i,flag;
+						if(voices.length){
+							var df=document.createDocumentFragment(),
+								navLang=navigator.language||navigator.userLanguage||navigator.browserLanguage,
+								event=document.createEvent("HTMLEvents");
+							for(i=-1;voices[++i];){
+								option=lang.options[0].cloneNode();
+								option.value=voices[i].lang;
+								if(!flag&&voices[i].lang.search(navLang)>=0){
+									option.defaultSelected=true;
+									flag=true;
+								}
+								option.appendChild(document.createTextNode(voices[i].name+(voices[i].lang&&" - "+voices[i].lang)));
+								df.appendChild(option);
+							}
+							if(!flag){
+								option=df.querySelector("[value=\"\"]");
+								option&&(option.defaultSelected=true);
+							}
+							lang.replaceChild(df,lang.firstElementChild);
+							event.initEvent("change",true,true);
+							lang.dispatchEvent(event);
+							//lang.size=lang.length;
+							clearInterval(interval); //getVoices
+							lang.removeEventListener("load",getVoices); //getVoices
+							lang.removeEventListener(supportEvent,getVoices); //getVoices
+							text.removeEventListener("focus",getVoices); //getVoices
+							[text,volume,rate,pitch].forEach(function(element){
+								element.removeEventListener("input",getVoices); //getVoices
+							});
+						}
+					}
+					var u=new SpeechSynthesisUtterance(),
+						text=document.getElementById("text"),
+						speak=document.getElementById("speak"),
+						supportEvent="ontouchend" in window?"touchend":"click",
+						event=document.createEvent("HTMLEvents"),
+						interval=setInterval(getVoices,50); //getVoices
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					lang.addEventListener("load",getVoices); //getVoices
+					lang.addEventListener(supportEvent,getVoices); //getVoices
+					text.addEventListener("input",getVoices); //getVoices
+					text.addEventListener("focus",getVoices);  //getVoices
+					[].forEach.call(document.forms[0].querySelectorAll("[type=\"range\"]"),function(element){
+						//u[element.id]=element.defaultValue-0;
+						element.addEventListener("change",function(e){
+							u[e.target.id]=e.target.validity.valid?e.target.value-0:e.target.defaultValue-0;
+						});
+						element.addEventListener("input",getVoices); //getVoices
+					});
+					lang.addEventListener("change",function(e){
+						u.lang=e.target.value;
+						u.voiceURI=e.target.querySelector("[selected]").firstChild.nodeValue.split(" - ")[0];
+					});
+					speak.addEventListener(supportEvent,function(){
+						speechSynthesis.speaking?speechSynthesis.cancel():(u.text=document.getElementById("text").value)&&speechSynthesis.speak(u);
+					});
+					u.addEventListener("start",function(){
+						speak.value="Stop";
+					});
+					u.addEventListener("end",function(){
+						speak.value="Speak";
+					});
+					u.addEventListener("error",function(e){
+						console.error(e);
+						speak.value="Speak";
+						alert("Error:Something happened");
+					});
+					event.initEvent("load",true,true);
+					lang.dispatchEvent(event); //getVoices
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

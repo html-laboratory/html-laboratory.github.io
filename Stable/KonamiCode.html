@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>KonamiCode</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<output></output>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					const output=document.getElementsByTagName("output")[0],
+						key=[],
+						KonamiCode=[38,38,40,40,37,39,37,39,66,65];
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					document.body.addEventListener("keydown",function(e){
+						const keyCode=e.keyCode;
+						if(output.value.length){
+							output.value="";
+						}
+						if(keyCode===KonamiCode[key.length]){
+							key[key.length]=keyCode;
+							if(key.length===KonamiCode.length){
+								output.value="Konami Code :)";
+								key.splice(0,key.length);
+							}
+						}else if(key.length){
+							key.splice(0,key.length);
+						}
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

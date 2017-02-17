@@ -1,0 +1,126 @@
+<?XML version="1.0" ?>
+<package>
+	<job>
+		<runtime>
+			<description><![CDATA[REPL(Read-eval-print loop) of Windows Script Host.
+Switch to multi-line mode with Enter key.]]></description>
+			<example><![CDATA[
+[CScript [//Job:VBScript|//Job:JScript]] WSH-REPL.wsf]]></example>
+		</runtime>
+		<script language="JScript">
+			<![CDATA[
+				(function(){
+					var fso=WScript.CreateObject("Scripting.FileSystemObject"),
+						engine={
+							"1":"VBScript",
+							"2":"JScript"
+						};
+					var arg="";
+					if(fso.GetFileName(WScript.FullName).toLowerCase()!=="wscript.exe"){
+						WScript.StdOut.WriteLine("1:VBScript\n2:JScript");
+						while(true){
+							WScript.StdOut.Write(">");
+							if(arg=engine[WScript.StdIn.ReadLine()]){
+								arg=" //Job:"+arg;
+								break;
+							}
+						}
+					}
+					WScript.CreateObject("WScript.Shell").Run('"'+fso.BuildPath(fso.GetParentFolderName(WScript.FullName),"CScript.exe")+'"'+arg+' "'+WScript.ScriptFullName+'"',1);
+				}());
+			]]>
+		</script>
+	</job>
+	<job id="VBScript">
+		<script language="VBScript">
+			<![CDATA[
+				Option Explicit
+				Sub Main_()
+					Dim WshShell,fso,Lines,Line,Flag
+					Set WshShell=CreateObject("WScript.Shell")
+					Set fso=CreateObject("Scripting.FileSystemObject")
+					If LCase(fso.GetFileName(WScript.FullName))="wscript.exe" Then
+						WshShell.Run """"&fso.BuildPath(fso.GetParentFolderName(WScript.FullName),"CScript.exe")&""" """&WScript.ScriptFullName&"""",1
+					Else
+						WScript.StdOut.WriteLine ScriptEngine
+						Do While True
+							If Not Flag Then
+								WScript.StdOut.Write WshShell.CurrentDirectory&">"
+							End If
+							Line=WScript.StdIn.ReadLine
+							If Flag Then
+								If Line="" Then
+									Line=Lines
+									WScript.StdOut.WriteLine "Multi-line mode:OFF"
+									Flag=False
+								Else
+									Lines=Lines&vbNewLine&Line
+								End If
+							Else
+								If Line="" Then
+									Lines=""
+									WScript.StdOut.WriteLine "Multi-line mode:ON"
+									Flag=True
+								End If
+							End If
+							If Not Flag Then
+								On Error Resume Next
+									Execute "Option Explicit:Sub Main():"&Line&":End Sub:Main"
+									If Err.Number<>0 Then
+										WScript.StdErr.WriteLine "Error:"&CStr(Err.Number)&vbNewLine&Err.Source&" "&Err.Description
+									End If
+									Err.Clear
+								On Error GoTo 0
+							End If
+						Loop
+					End If
+				End Sub
+				Main_
+			]]>
+		</script>
+	</job>
+	<job id="JScript">
+		<script language="JScript">
+			<![CDATA[
+				(function(){
+					var WshShell=WScript.CreateObject("WScript.Shell"),
+						fso=WScript.CreateObject("Scripting.FileSystemObject");
+					var lines,line,flag;
+					if(fso.GetFileName(WScript.FullName).toLowerCase()==="wscript.exe"){
+						WshShell.Run('"'+fso.BuildPath(fso.GetParentFolderName(WScript.FullName),"CScript.exe")+'" "'+WScript.ScriptFullName+'"',1);
+					}else{
+						WScript.StdOut.WriteLine(ScriptEngine());
+						while(true){
+							if(!flag){
+								WScript.StdOut.Write(WshShell.CurrentDirectory+">");
+							}
+							line=WScript.StdIn.ReadLine();
+							if(flag){
+								if(line){
+									lines+="\n"+line;
+								}else{
+									line=lines;
+									WScript.StdOut.WriteLine("Multi-line mode:OFF");
+									flag=false;
+								}
+							}else{
+								if(!line){
+									lines="";
+									WScript.StdOut.WriteLine("Multi-line mode:ON");
+									flag=true;
+								}
+							}
+							if(!flag){
+								try{
+									new Function(line)();
+								}catch(e){
+									WScript.StdErr.WriteLine(e);
+								}
+							}
+						}
+					}
+				}());
+			]]>
+		</script>
+	</job>
+</package>

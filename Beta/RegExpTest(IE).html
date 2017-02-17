@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Regular Expression Test</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="https://developer.mozilla.org" />
+		<link rel="dns-prefetch" href="https://msdn.microsoft.com" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea,[type="text"]{
+					box-sizing:border-box;
+					width:100%;
+				}
+				#string{
+					height:25em;
+				}
+				#replace{
+					height:5em;
+				}
+				output{
+					white-space:pre;
+					overflow-wrap:break-word;
+					word-wrap:break-word;
+				}
+				output::before{
+					display:block;
+					content:attr(id);
+					text-transform:capitalize;
+					font-weight:bold;
+				}
+			}
+			@media screen and (min-width:640px){
+				section{
+					width:50%;
+					float:left;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<form id="input">
+				<fieldset>
+					<legend>String</legend>
+					<div>
+						<textarea id="string"></textarea>
+					</div>
+				</fieldset>
+				<fieldset>
+					<legend>Pattern</legend>
+					<div>
+						<input type="text" id="pattern" spellcheck="false" />
+					</div>
+					<div>
+						<input type="checkbox" id="global" title="Global match" /><label for="global">g</label>
+						<input type="checkbox" id="ignore_case" title="Ignore case" /><label for="ignore_case">i</label>
+						<input type="checkbox" id="multiple" title="Match over multiple lines" /><label for=multiple"">m</label>
+					</div>
+					<div>
+						<ul>
+							<li>
+								<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Regular_Expressions">正規表現 - JavaScript | MDN</a>
+							</li>
+							<li>
+								<a href="https://msdn.microsoft.com/ja-jp/library/cc392020.aspx">正規表現の構文 - MSDN - Microsoft</a>
+							</li>
+						</ul>
+					</div>
+				</fieldset>
+				<fieldset>
+					<legend>Replace</legend>
+					<div>
+						<input id="tab" type="button" value="Tab" />
+					</div>
+					<div>
+						<textarea id="replace"></textarea>
+					</div>
+				</fieldset>
+				<div>
+					<input id="execute" type="button" value="Execute" />
+				</div>
+			</form>
+		</section>
+		<section>
+			<output id="result" form="input"></output>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var replace=document.getElementById("replace"),
+						execute=document.getElementById("execute"),
+						supportEvent="ontouchend" in window?"touchend":"click";
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					function insertTab(e){
+						if(e.keyCode===9&&!(e.shiftKey||e.ctrlKey||e.altKey||e.metaKey)||e.type!=="keydown"){
+							var sS=replace.selectionStart,
+								sE=replace.selectionEnd;
+							replace.value=replace.value.substring(0,sS)+"\t"+replace.value.substr(sE);
+							replace.setSelectionRange(++sS,sS);
+							e.preventDefault();
+						}
+					}
+					document.getElementById("tab").addEventListener(supportEvent,insertTab);
+					replace.addEventListener("keydown",insertTab);
+					execute.addEventListener(supportEvent,function(){
+						var re=new RegExp(document.getElementById("pattern").value,["","g"][document.getElementById("global").checked+0]+["","i"][document.getElementById("ignore_case").checked+0]+["","m"][document.getElementById("multiple").checked+0]),
+							result=document.getElementById("result");
+						e.target.disabled=true;
+						while(result.hasChildNodes()){
+							result.removeChild(result.firstChild);
+						}
+						result.appendChild(document.createTextNode(document.getElementById("string").value.replace(re,replace.value)));
+						e.target.disabled=false;
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

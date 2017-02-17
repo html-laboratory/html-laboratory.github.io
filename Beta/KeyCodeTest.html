@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>KeyCodeTest</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>KeyDown</h1>
+			<output id="keydown"></output>
+		</section>
+		<section>
+			<h1>KeyPress</h1>
+			<output id="keypress"></output>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					Array.from(document.getElementsByTagName("output")).forEach(function(element){
+						document.body.addEventListener(element.id,function(e){
+							element.value=e.keyCode;
+						});
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

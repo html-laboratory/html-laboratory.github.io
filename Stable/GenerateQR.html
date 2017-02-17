@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>GenerateQRCode</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="preconnect" href="https://chart.googleapis.com" crossorigin="crossorigin" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				#input{
+					box-sizing:border-box;
+					width:100%;
+					height:10em;
+				}
+				form :invalid{
+					outline:thin red solid;
+				}
+			}
+			@media screen and (min-width:640px){
+				section{
+					width:50%;
+					float:left;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>Input</h1>
+			<form>
+				<div>
+					<textarea id="input" required="required"></textarea>
+				</div>
+				<div>
+					<input type="range" min="29" max="547" value="320" required="required" id="range" />
+					<output id="size" for="range"></output>
+					<input type="button" value="Generate" id="exec" />
+				</div>
+			</form>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div>
+				<output id="output" for="input"></output>
+			</div>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var range=document.getElementById("range"),
+						size=document.getElementById("size"),
+						exec=document.getElementById("exec"),
+						supportEvent="ontouchend" in window?"touchend":"click";
+					var chs;
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					range.addEventListener("input",function(e){
+						var side=(e.target.validity.valid?e.target.value:e.target.defaultValue)|0;
+						size.value=side+"px";
+						chs=side;
+					});
+					range.dispatchEvent(new Event("input"));
+					range.addEventListener("keydown",function(e){
+						if(e.keyCode===13){
+							e.preventDefault();
+							exec.dispatchEvent(new Event(supportEvent));
+						}
+					});
+					exec.addEventListener(supportEvent,function(){
+						var input=document.getElementById("input"),
+							output=document.getElementById("output");
+						if(input.validity.valid){
+							var img=document.getElementById("QRCode");
+							if(!img){
+								img=document.createElement("img");
+								img.id="QRCode";
+							}
+							img.src="https://chart.googleapis.com/chart?chs="+chs+"&cht=qr&chl="+encodeURIComponent(input.value);
+							img.width=chs;
+							img.height=chs;
+							output.hasChildNodes()||output.appendChild(img);
+						}
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Crash</title>
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				*{
+					margin:0;
+					padding:0;
+				}
+				body>:not(script):empty{
+					display:block;
+					width:100%;
+					height:100vh;
+					animation:animation 5s linear 0s infinite normal none;
+				}
+				.color:empty{
+					background-size:220%;
+				}
+				.mono:empty{
+					background-size:300%;
+				}
+				.color.horizontal:empty{
+					background-image:linear-gradient(90deg,red,yellow,lime,aqua,blue,fuchsia,red,yellow,lime,aqua,blue,fuchsia);
+				}
+				.color.vertical:empty{
+					background-image:linear-gradient(180deg,red,yellow,lime,aqua,blue,fuchsia,red,yellow,lime,aqua,blue,fuchsia);
+				}
+				.mono.horizontal:empty{
+					background-image:linear-gradient(90deg,black,white,black,white);
+				}
+				.mono.vertical:empty{
+					background-image:linear-gradient(180deg,black,white,black,white);
+				}
+			}
+			@keyframes animation{
+				from{
+					background-position:bottom right;
+				}
+				to{
+					background-position:top left;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					if(confirm("Are you ready?")){
+						var template={"div":document.createElement("div")},
+							loop=32,
+							interval=setInterval(function(){
+								var div=template.div.cloneNode();
+								div.className=(Math.round(Math.random())?"mono":"color")+" "+(Math.round(Math.random())?"horizontal":"vertical");
+								document.body.appendChild(div);
+								--loop<1&&clearInterval(interval);
+							},1/30*1000);
+					}
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

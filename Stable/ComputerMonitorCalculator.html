@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Computer Monitor Calculator</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				:invalid{
+					outline:thin red solid;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>Input</h1>
+			<form id="input">
+				<div><label for="width">Width:</label><input id="width" type="number" required="required" placeholder="1920" /><label for="width">pixel</label></div>
+				<div><label for="height">Height:</label><input id="height" type="number" required="required" placeholder="1200" /><label for="height">pixel</label></div>
+				<div><label for="diagonal">Diagonal:</label><input id="diagonal" type="number" placeholder="24.1" step="any" /><label for="diagonal">inch</label></div>
+				<div><input id="execute" type="button" value="Calculate" /></div>
+			</form>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div><output id="result" form="input"></output></div>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var execute=document.getElementById("execute"),
+						widthInput=document.getElementById("width"),
+						heightInput=document.getElementById("height");
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					widthInput.value=screen.width;
+					heightInput.value=screen.height;
+					execute.addEventListener("ontouchend" in window?"touchend":"click",function(){
+						var result=document.getElementById("result"),
+							width={"dot":Math.abs(widthInput.value|0)},
+							height={"dot":Math.abs(heightInput.value|0)},
+							diagonal={"current":Math.abs(document.getElementById("diagonal").value)},
+							table=document.createElement("table"),
+							tbody=document.createElement("tbody"),
+							template={
+								"tr":document.createElement("tr"),
+								"th":document.createElement("td"),
+								"td":document.createElement("td")
+							};
+						var tmp,i,line,cell;
+						tmp=Math.sqrt(Math.pow(width.dot,2)+Math.pow(height.dot,2));
+						var dpi=tmp/diagonal.current;
+						diagonal._72dpi=tmp/72;
+						diagonal._96dpi=tmp/96;
+						diagonal._300dpi=tmp/300;
+						tmp=[width.dot,height.dot].sort(function(a,b){return a-b;});
+						while(i=tmp[1]%tmp[0]){
+							tmp[1]=tmp[0];
+							tmp[0]=i;
+						}
+						width.ratio=width.dot/tmp[0];
+						height.ratio=height.dot/tmp[0];
+						var dot_pitch=diagonal.current/Math.sqrt(Math.pow(width.ratio,2)+Math.pow(height.ratio,2))*width.ratio*25400/width.dot;
+						tmp={
+							"dpi":dpi&&dpi!==Infinity&&dpi.toFixed(20)+" dpi",
+							"Ratio":width.ratio/height.ratio&&width.ratio/height.ratio!==Infinity&&width.ratio+" : "+height.ratio,
+							"Dot Pitch":dot_pitch&&dot_pitch!==Infinity&&dot_pitch.toFixed(20)+" um",
+							"72dpi":diagonal._72dpi&&diagonal._72dpi!==Infinity&&diagonal._72dpi.toFixed(20)+" inch",
+							"96dpi":diagonal._96dpi&&diagonal._96dpi!==Infinity&&diagonal._96dpi.toFixed(20)+" inch",
+							"300dpi":diagonal._300dpi&&diagonal._300dpi!==Infinity&&diagonal._300dpi.toFixed(20)+" inch"
+						};
+						for(i in tmp){
+							line=template.tr.cloneNode();
+							cell=template.th.cloneNode();
+							cell.appendChild(document.createTextNode(i));
+							line.appendChild(cell);
+							cell=template.td.cloneNode();
+							tmp[i]&&cell.appendChild(document.createTextNode(tmp[i]));
+							line.appendChild(cell);
+							tbody.appendChild(line);
+						}
+						table.appendChild(tbody);
+						while(result.hasChildNodes()){
+							result.removeChild(result.firstChild);
+						}
+						document.getElementById("result").appendChild(table);
+						e.currentTarget.removeEventListener(e.type,main);
+					});
+				});
+			}());
+		</script>
+	</body>
+</html>

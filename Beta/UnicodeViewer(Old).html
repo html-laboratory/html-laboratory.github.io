@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Unicode Viewer</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				thead>:first-child>:nth-child(n+2){
+					width:3em;
+				}
+				/*:link,:visited{
+					color:WindowText;
+					text-decoration:none;
+				}*/
+			}
+		</style>
+	</head>
+	<body role="application">
+		<output id="output"></output>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					setTimeout(function(){
+						var output=document.getElementById("output"),
+							table=document.createElement("table"),
+							template={
+								"tr":document.createElement("tr"),
+								"th":document.createElement("td"),
+								"td":document.createElement("td")
+							},
+							f={};
+						var block,line,cell,chr,i,j,k;
+						for(i=2;i--;){
+							f.fR=i>0;
+							block=document.createElement(f.fR?"thead":"tbody");
+							for(j=-1;++j<0x1000;){
+								line=template.tr.cloneNode();
+								for(k=-2;++k<0x10;){
+									f.fC=k<0;
+									if(!f.fR&&!f.fC){
+										chr=document.createTextNode(String.fromCharCode(j*0x10+k));
+									}
+									if(f.fR||f.fC){
+										cell=template.th.cloneNode();
+										f.fR?
+											f.fC?
+												cell.appendChild(document.createTextNode("U+")):
+											cell.appendChild(document.createTextNode(k.toString(16).toUpperCase())):
+										f.fC&&
+										cell.appendChild(document.createTextNode((j*0x10).toString(16).toUpperCase()));
+									}else{
+										cell=template.td.cloneNode();
+										cell.appendChild(chr);
+									}
+									line.appendChild(cell);
+								}
+								block.appendChild(line);
+								if(f.fR){
+									break;
+								}
+							}
+							table.appendChild(block);
+						}
+						table.addEventListener("click",function(e){
+							e.target.tagName==="TD"&&prompt("",e.target.firstChild.nodeValue);
+						});
+						output.appendChild(table);
+					},0);
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

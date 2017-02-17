@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>かな←→カナ変換</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea{
+					box-sizing:border-box;
+					width:100%;
+				}
+				output{
+					white-space:pre;
+					overflow-wrap:break-word;
+					word-wrap:break-word;
+				}
+				section>h2{
+					font-size:1em;
+				}
+			}
+			@media screen and (min-width:640px){
+				section:nth-of-type(2),section:nth-of-type(3){
+					padding:0 0.5em;
+					box-sizing:border-box;
+					width:50%;
+					float:left;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>Example</h1>
+			<h2>Input</h2>
+			<div>満二十年ニ至ラサル者ハ酒類ヲ飲用スルコトヲ得ス</div>
+			<div>朕カ在廷ノ大臣ハ朕カ爲ニ此ノ憲法ヲ施行スルノ責ニ任スヘク朕カ現在及將來ノ臣民ハ此ノ憲法ニ對シ永遠ニ從順ノ義務ヲ負フヘシ</div>
+			<h2>Output</h2>
+			<div>満二十年に至らさる者は酒類を飲用することを得す</div>
+			<div>朕か在廷の大臣は朕か爲に此の憲法を施行するの責に任すへく朕か現在及將來の臣民は此の憲法に對し永遠に從順の義務を負ふへし</div>
+		</section>
+		<section>
+			<h1>Input</h1>
+			<div><textarea cols="80" rows="25" autofocus="autofocus" inputmode="kana" id="input"></textarea></div>
+			<div>
+				<input type="button" value="かな→カナ" />
+				<input type="button" value="カナ→かな" />
+			</div>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div>
+				<output id="output" for="input"></output>
+			</div>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function switchWorking(elements){
+						[].forEach.call(elements,function(element){
+							element.disabled=!element.disabled;
+						});
+						elements[0].disabled?document.documentElement.style.cursor="wait":document.documentElement.style.removeProperty("cursor");
+					}
+					var conv={
+							"かな→カナ":{
+								"re":/[ぁ-ゖ]/g,
+								"i":96
+							},
+							"カナ→かな":{
+								"re":/[ァ-ヶ]/g,
+								"i":-96
+							}
+						},
+						output=document.getElementById("output"),
+						buttons=document.querySelectorAll("input[type=\"button\"]");
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					[].forEach.call(buttons,function(element){
+						element.addEventListener("ontouchend" in window?"touchend":"click",function(e){
+							switchWorking(buttons);
+							var obj=conv[e.target.value],
+								str=document.getElementById("input").value.replace(obj.re,function(c){
+									return String.fromCharCode(c.charCodeAt(0)+obj.i);
+								});
+							output.value=str;
+							output.getAttribute("value")||(output.hasChildNodes()?output.replaceChild(document.createTextNode(str),output.firstChild):output.appendChild(document.createTextNode(str)));
+							switchWorking(buttons);
+						});
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

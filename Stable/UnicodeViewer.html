@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Unicode Viewer</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				thead>:first-child>:nth-child(n+2){
+					width:3em;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<output id="output"></output>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var output=document.getElementById("output"),
+						span=document.createElement("span"),
+						progress=document.createElement("progress"),
+						blob=URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"}));
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					document.documentElement.style.cursor="wait";
+					//progress.max=100;
+					progress.appendChild(document.createTextNode(""));
+					span.appendChild(document.createTextNode("Creating:"));
+					span.appendChild(progress);
+					output.appendChild(span);
+					var worker=new Worker(blob);
+					worker.addEventListener("message",function(e){
+						if(e.data.table){
+							span.replaceChild(document.createTextNode("Displaying:"),span.firstChild);
+							progress.removeAttribute("value");
+							progress.removeChild(progress.firstChild);
+							setTimeout(function(){
+								output.insertAdjacentHTML("BeforeEnd",e.data.table);
+								output.removeChild(span);
+								document.documentElement.style.removeProperty("cursor");
+								output.firstChild.addEventListener("click",function(e){
+									var element=e.target;
+									element.tagName==="TD"&&prompt("",element.firstChild.nodeValue);
+								});
+							},0);
+							e.target.terminate();
+							URL.revokeObjectURL(blob);
+						}else{
+							progress.value=0.01*e.data.percent;
+							progress.replaceChild(document.createTextNode(e.data.percent+"%"),progress.firstChild);
+						}
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				var f={},
+					lines=0x1000;
+				var percent=0,
+					table,block,line,cell,text,chr,i,j,k;
+				table="";
+				for(i=2;i--;){
+					f.fR=i>0;
+					block="";
+					for(j=-1;++j<lines;){
+						line="";
+						j>=lines/100*percent&&postMessage({"percent":++percent});
+						for(k=-2;++k<0x10;){
+							f.fC=k<0;
+							cell=(f.fR||f.fC)?"<th>"+(f.fR?f.fC?"U+":k.toString(16).toUpperCase():f.fC&&(j*0x10).toString(16).toUpperCase())+"</th>":"<td>"+"&#"+(j*0x10+k)+";"+"</td>"; //(j>=0xd80&&j<0xf00)&& String.fromCharCode(j*0x10+k)
+							line+=cell;
+						}
+						block+="<tr>"+line+"</tr>";
+						if(f.fR){
+							break;
+						}
+					}
+					table+=(f.fR?"<table><thead>":"<tbody>")+block+(f.fR?"</thead>":"</tbody></table>");
+				}
+				postMessage({"table":table});
+			}());
+		</script>
+	</body>
+</html>

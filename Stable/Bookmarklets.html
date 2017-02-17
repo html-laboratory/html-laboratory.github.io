@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Bookmarklets</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<ul>
+			<li><a href="javascript:(function(a){a=document.createElement(&quot;script&quot;);a.src=&quot;http://font.textar.tv/webfont.js&quot;;a.charset=&quot;utf-8&quot;;document.body.appendChild(a);a=document.createElement(&quot;link&quot;);a.rel=&quot;stylesheet&quot;;a.href='data:text/css,body *{font-Family:&quot;Textar&quot; !important;font-size:16px;line-height:1.125;white-space:nowrap;}';document.head.appendChild(a)})();">AAを整形</a></li>
+			<li><a href="javascript:(function(a,c){var b=a.createElement(&quot;pre&quot;);a.title=c;b.appendChild(a.createTextNode((new XMLSerializer).serializeToString(document)));a.body.appendChild(b)})(open().document,&quot;DOM Source View&quot;);">HTMLソースを表示</a></li>
+			<li><a href="javascript:(function(s){while(s!==null){try{s=eval(prompt(s));}catch(e){s=e;}}}(&quot;JavaScript Read-eval-print loop&quot;));">JS REPL</a></li>
+			<li><a href="javascript:(function(a){[].forEach.call(document.head.querySelectorAll('meta[name=&quot;viewport&quot;]'),function(a){a.parentNode.removeChild(a)});a=document.createElement(&quot;meta&quot;);a.name=&quot;viewport&quot;;a.content=&quot;width=device-width,initial-scale=1,minimum-scale=0.25,maximum-scale=1.6,user-scalable=yes&quot;;document.head.appendChild(a)})();">ViewPortを再設定</a></li>
+			<li><a href="javascript:(function(s){location.href=s;}(prompt(&quot;URL&quot;)));">アドレスバー</a></li>
+			<li><a href="javascript:(function(c,a,b){a=document.getElementsByTagName(&quot;style&quot;)[0];(b=!a)&amp;&amp;(a=document.createElement(&quot;style&quot;));a.appendChild(document.createTextNode(c));b&amp;&amp;document.head.appendChild(a)})(&quot;*,::after,::before,::first-letter,::first-line,::selection,::backdrop{max-width:100vw !important;white-space:normal !important;}&quot;);">ウィンドウ幅で表示</a></li>
+			<li><a href="javascript:(function(){var d=[{nodes:&quot;[style],[align],[alink],[allowtransparency],[background],[bgcolor],[bgproperties],[bordercolor],[bordercolordark],[bordercolorlight],[bottommargin],[cellpadding],[collspacing],[char],[charoff],[clear],[color],[compact],[frame],[frameborder],[hspace],[leftmargin],[link],[marginheight],[marginwidth],[noshade],[nowrap],[rightmargin],[rules],[scrolling],[size],[text],[topmargin],[valign],[vlink],[vspace]&quot;,attrs:&quot;style align alink allowtransparency background bgcolor bgproperties bordercolor bordercolordark bordercolorlight bottommargin cellpadding cellspacing char charoff clear color compact frame frameborder hspace leftmargin link marginheight marginwidth noshade nowrap rightmargin rules scrolling size text topmargin valign vlink vspace&quot;.split(&quot; &quot;)},{nodes:&quot;li[type],ul[type],li[value]&quot;,attrs:[&quot;type&quot;,&quot;value&quot;]},{nodes:&quot;:not(img):not(input):not(video):not(iframe):not(object):not(embed)[height],:not(img):not(input):not(video):not(iframe):not(object):not(embed)[width]&quot;,attrs:[&quot;height&quot;,&quot;width&quot;]}],b,c,a,e;b=document.querySelectorAll('style,link[rel=&quot;stylesheet&quot; i],applet,command,keygen,nextid,nobr,spacer');for(a=b.length;a--;)b[a].parentNode.removeChild(b[a]);b=document.querySelectorAll(&quot;acronym,basefont,big,blink,center,content,dir,font,isindex,listing,marquee,multicol,noembed,strike,tt,xmp&quot;);if(b.length){c=document.createRange();for(a=b.length;a--;)c.selectNodeContents(b[a]),b[a].parentNode.replaceChild(c.cloneContents(),b[a]);c.detach()}for(a=d.length;a--;)for(b=document.querySelectorAll(d[a].nodes),c=b.length;c--;)for(e=d[a].attrs.length;e--;)b[c].removeAttribute(d[a].attrs[e])})();">スタイルを無効</a></li>
+			<li><a href="javascript:(function(){var b=document.createElement(&quot;div&quot;),d=document.createElement(&quot;a&quot;);[].forEach.call(document.head.querySelectorAll('link[rel=&quot;alternate&quot;][type=&quot;application/rss+xml&quot;],link[rel=&quot;alternate&quot;][type=&quot;application/atom+xml&quot;]'),function(c){var a=d.cloneNode();a.appendChild(document.createTextNode(c.title));a.href=c.href;a.style.display=&quot;block&quot;;b.appendChild(a)});b.hasChildNodes()&amp;&amp;document.body.insertBefore(b,document.body.firstChild)})();">フィードを表示</a></li>
+			<li><a href="javascript:(function(){prompt(&quot;&quot;,document.title);}());">ページタイトルを表示</a></li>
+			<li><a href="javascript:scroll(0,document.documentElement.scrollHeight);">ページの最下部に移動</a></li>
+			<li><a href="javascript:(function(){for(var a=document.images,b=-1,c=document.createElement(&quot;body&quot;),d=[];a[++b];)d[0]=a[b].parentNode.href,d[1]=document.createElement(&quot;img&quot;),d[1].src=/\.(jp(eg|e|g)|gif|png|w?bmp|tiff?|cpr|ico|xbm|webp)$/i.test(d[0])?d[0]:a[b].src,c.appendChild(d[1]);d[0]=document.documentElement;d[1]=d[0].cloneNode(!1);d[1].appendChild(c);document.replaceChild(d[1],d[0]);}());">画像のみ表示</a></li>
+			<li><a href="javascript:(function(){var a=document.getElementsByTagName(&quot;video&quot;)[0];a.playbackRate=prompt(&quot;Play Speed&quot;,a.playbackRate)})();">動画の再生速度を変更</a></li>
+		</ul>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var userAgent=navigator.userAgent;
+					var i;
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					if(userAgent.indexOf("iPhone")>=0||userAgent.indexOf("iPad")>=0||userAgent.indexOf("iPod")>=0){
+						var links=document.querySelectorAll("a[href^=\"javascript:\"]");
+						for(i=links.length;i--;){
+							links[i].href="/#"+links[i].href;
+						}
+					}
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

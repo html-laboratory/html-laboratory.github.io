@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>SpeechRecognition</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea,input[type="button"]{
+					box-sizing:border-box;
+					width:100%;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<!--https://www.google.com/intl/en/chrome/demos/speech.html-->
+		<form>
+			<div><input type="hidden" value="Press me." id="switch" /></div>
+			<div><textarea rows="25" id="text"></textarea></div>
+		</form>
+		<div>Status:<output id="status" for="text"></output></div>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+					var status=document.getElementById("status");
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					if(window.SpeechRecognition){
+						var text=document.getElementById("text"),
+							recognition=new SpeechRecognition(),
+							statusText=["Ready","Start","Stop","Recognizing...","No Match"];
+						recognition.lang=navigator.language||navigator.userLanguage||navigator.browserLanguage;
+						recognition.continuous=true;
+						recognition.interimResults=true;
+						status.value=statusText[0];
+						if(location.protocol==="https:"||location.protocol==="file:"){
+							text.placeholder="Speak to me.";
+							text.addEventListener("focus",function(){
+								recognition.start();
+							});
+							text.addEventListener("blur",function(){
+								recognition.stop();
+							});
+							text.focus();
+						}else{
+							var button=document.getElementById("switch");
+							button.type="button";
+							button.addEventListener("ontouchend" in window?"touchend":"click",function(e){
+								if(e.target.value!==statusText[2]){
+									e.target.value=statusText[2];
+									recognition.start();
+									text.placeholder="Speak to me.";
+								}else if(e.target.value===statusText[2]){
+									e.target.value=statusText[1];
+									recognition.stop();
+									text.placeholder="";
+								}
+							});
+							button.focus();
+						}
+						recognition.addEventListener("start",function(){
+							status.value=statusText[1];
+						});
+						recognition.addEventListener("end",function(){
+							status.value=statusText[2];
+						});
+						recognition.addEventListener("speechstart",function(){
+							status.value=statusText[3];
+						});
+						recognition.addEventListener("speechend",function(){
+							status.value=statusText[1];
+						});
+						recognition.addEventListener("nomatch",function(){
+							status.value=statusText[4];
+						});
+						recognition.addEventListener("error",function(e){
+							text.placeholder="";
+							status.value="error : "+e.error+" massege : "+e.message;
+							recognition.stop();
+						});
+						recognition.addEventListener("result",function(e){
+							var result=e.results[e.results.length-1];
+							(result.final||result.isFinal)&&(text.value+=result[0].transcript);
+							status.value=statusText[1];
+						});
+					}else{
+						var error=new Error("SpeechRecognition is not defined");
+						//console.error(error.message);
+						status.value=error.message;
+					}
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

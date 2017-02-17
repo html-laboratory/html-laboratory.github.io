@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Speech</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				form{
+					text-align:center;
+				}
+				form :invalid{
+					outline:thin red solid;
+				}
+				textarea,select,[type="button"]{
+					box-sizing:border-box;
+					width:100%;
+				}
+				[type="range"]{
+					width:calc(100% - 5em);
+				}
+				[type="range"],label{
+					vertical-align: middle;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<!--https://dvcs.w3.org/hg/speech-api/raw-file/tip/speechapi.html-->
+		<form>
+			<div>
+				<textarea rows="25" id="text" autofocus="autofocus" required="required" placeholder="I love you."></textarea>
+			</div>
+			<div>
+				<div>
+					<label for="volume" title="Decrease Volume">&#128264;</label>
+					<input type="range" id="volume" title="Volume" value="1" min="0" max="1" step="any" />
+					<label for="volume" title="Increase Volume">&#128266;</label>
+				</div>
+				<div>
+					<label for="rate" title="Slow Rate"><!--▶-->&#128034</label>
+					<!--<input type="range" id="rate" value="1" min="0.1" max="10" step="any" />-->
+					<input type="range" id="rate" title="Rate" value="1" min="0.1" max="2" step="any" />
+					<label for="rate" title="Fast Rate"><!--⏩-->&#128007</label>
+				</div>
+				<div>
+					<label for="pitch" title="Low Pitch"><!--⏬-->▲</label>
+					<input type="range" id="pitch" title="Pitch" value="1" min="0" max="2" step="any" />
+					<label for="pitch" title="High Pitch"><!--⏫-->▼</label>
+				</div>
+				<div>
+					<select id="lang" title="Lang">
+						<option value="Native">Native</option>
+					</select>
+				</div>
+			</div>
+			<div>
+				<input type="button" id="speak" value="Speak" />
+			</div>
+		</form>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function getVoices(){
+						var voices=speechSynthesis.getVoices();
+						var option,i,flag;
+						if(voices.length){
+							var df=document.createDocumentFragment(),
+								navLang=navigator.language||navigator.userLanguage||navigator.browserLanguage;
+							for(i=-1;voices[++i];){
+								option=lang.options[0].cloneNode();
+								option.value=voices[i].lang;
+								if(!flag&&voices[i].lang.startsWith(navLang)){
+									option.defaultSelected=true;
+									flag=true;
+								}
+								option.text=voices[i].name+(voices[i].lang&&" - "+voices[i].lang);
+								df.appendChild(option);
+							}
+							if(!flag){
+								option=df.querySelector("[value=\"\"]");
+								option&&(option.defaultSelected=true);
+							}
+							lang.replaceChild(df,lang.firstElementChild);
+							lang.dispatchEvent(new Event("change"));
+							//lang.size=lang.length;
+							clearInterval(interval); //getVoices
+							lang.removeEventListener("load",getVoices); //getVoices
+							lang.removeEventListener(supportEvent,getVoices); //getVoices
+							text.removeEventListener("focus",getVoices); //getVoices
+							Array.from(document.forms[0].querySelectorAll("textarea,[type=\"range\"]")).forEach(function(element){
+								element.removeEventListener("input",getVoices); //getVoices
+							});
+						}
+					}
+					var u=new SpeechSynthesisUtterance(),
+						text=document.getElementById("text"),
+						lang=document.getElementById("lang"),
+						speak=document.getElementById("speak"),
+						supportEvent="ontouchend" in window?"touchend":"click",
+						event=new Event(supportEvent),
+						interval=setInterval(getVoices,50); //getVoices
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					lang.addEventListener("load",getVoices); //getVoices
+					lang.dispatchEvent(new Event("load")); //getVoices
+					lang.addEventListener(supportEvent,getVoices); //getVoices
+					text.addEventListener("input",getVoices); //getVoices
+					text.addEventListener("focus",getVoices);  //getVoices
+					Array.from(document.forms[0].querySelectorAll("[type=\"range\"]")).forEach(function(element){
+						//u[element.id]=element.defaultValue-0;
+						element.addEventListener("change",function(e){
+							u[e.target.id]=e.target.validity.valid?e.target.value-0:e.target.defaultValue-0;
+						});
+						element.addEventListener("input",getVoices); //getVoices
+					});
+					lang.addEventListener("change",function(e){
+						u.lang=e.target.value;
+						u.voiceURI=e.target.querySelector("[selected]").firstChild.nodeValue.split(" - ")[0];
+					});
+					Array.from(document.forms[0].querySelectorAll("[type=\"range\"],select")).forEach(function(element){
+						element.addEventListener("keydown",function(e){
+							if(e.keyCode===13){
+								e.preventDefault();
+								speak.dispatchEvent(event);
+							}
+						});
+					});
+					speak.addEventListener(supportEvent,function(){
+						speechSynthesis.speaking?speechSynthesis.cancel():(u.text=document.getElementById("text").value)&&speechSynthesis.speak(u);
+					});
+					u.addEventListener("start",function(){
+						speak.value="Stop";
+					});
+					u.addEventListener("end",function(){
+						speak.value="Speak";
+					});
+					u.addEventListener("error",function(e){
+						console.error(e);
+						speak.value="Speak";
+						alert("Error:Something happened");
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

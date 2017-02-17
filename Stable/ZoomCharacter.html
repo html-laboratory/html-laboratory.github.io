@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>ZoomCharacter</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="http://kakijun.jp" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				output{
+					display:block;
+				}
+				#result{
+					font-family:serif;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>Input</h1>
+			<div>
+				<input id="text" type="text" size="2" placeholder="漢字" inputmode="kana" spellcheck="false" />
+			</div>
+			<div>
+				<input id="range" type="range" value="72" min="1" placeholder="大きさ" />
+				<input id="pt" type="radio" name="trigger" checked="checked" />
+				<input id="px" type="radio" name="trigger" />
+				<output id="size" for="range trigger"></output>
+			</div>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div>
+				<output id="stroke_order" for="text"></output>
+			</div>
+			<div>
+				<output id="result" for="text"></output>
+			</div>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function apply(e){
+						var b={};
+						tmp=[];
+						tmp[0]=[e.target.id,e.target.type==="radio",e.target.checked];
+						tmp[1]=[tmp[0][0],tmp[0][1]?radios[0].checked:e.target.value];
+						if(state[tmp[1][0]]!==tmp[1][1]){
+							tmp[0][1]?state.radio:state[tmp[1][0]]=tmp[1][1];
+							tmp[0][1]&&tmp[0][2]&&(unit=tmp[0][0]);
+							tmp=(range.validity.valid?range.value|0:range.defaultValue|0)+unit;
+							size.value=tmp;
+							result.style.fontSize=tmp;
+							tmp=text.value;
+							if(tmp){
+								result.value=tmp;
+								var a=template.a.cloneNode();
+								a.href="http://kakijun.jp/main/u_kensaku.php?KANJI="+encodeURIComponent(tmp);
+								a.rel="external";
+								a.appendChild(document.createTextNode("「"+tmp+"」の書き方 - 漢字の正しい書き順(筆順)"));
+								stroke_order.hasChildNodes()?stroke_order.replaceChild(a,stroke_order.firstChild):stroke_order.appendChild(a);
+							}
+						}
+					}
+					var text=document.getElementById("text"),
+						range=document.getElementById("range"),
+						radios=document.body.querySelectorAll("[type=\"radio\"][name=\"trigger\"]"),
+						size=document.getElementById("size"),
+						stroke_order=document.getElementById("stroke_order"),
+						result=document.getElementById("result"),
+						state={"text":text.value,"size":size.value,"radio":radios[0].checked},
+						template={"a":document.createElement("a")};
+					var tmp,unit;
+					unit=radios[0].id;
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					range.max=(screen.width*3/4)|0;
+					size.value=range.value+unit;
+					template.a.rel="external";
+					[].forEach.call(radios,function(element){
+						var label={"element":document.createElement("label")};
+						tmp=element.id;
+						element.value=tmp;
+						label.element.setAttribute("for",tmp);
+						label.text=document.createTextNode(tmp);
+						label.element.appendChild(label.text);
+						element.parentNode.insertBefore(label.element,element.nextSibling);
+						element.addEventListener("ontouchend" in window?"touchend":"click",apply);
+					});
+					text.addEventListener("input",apply);
+					range.addEventListener("input",apply);
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

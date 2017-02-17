@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>cURL</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="https://curl.haxx.se" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				#input,#button{
+					box-sizing:border-box;
+					width:100%;
+				}
+				:invalid{
+					outline:thin red solid;
+				}
+				output{
+					overflow-wrap:break-word;
+					word-wrap:break-word;
+				}
+			}
+			@media screen and (min-width:640px){
+				section{
+					width:50%;
+					float:left;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>Input</h1>
+			<div>
+				<a href="https://curl.haxx.se/docs/manpage.html" rel="external">cURL - How To Use</a>
+			</div>
+			<div>
+				<!--
+					http://site.{one,two,three}.com
+					ftp://ftp.numericals.com/file[1-100].txt
+					ftp://ftp.numericals.com/file[001-100].txt
+					ftp://ftp.letters.com/file[a-z].txt
+					http://any.org/archive[1996-1999]/vol[1-4]/part{a,b,c}.html
+					http://www.numericals.com/file[1-100:10].txt
+					http://www.letters.com/file[a-z:2].txt
+				-->
+				<textarea cols="80" rows="25" id="input" autofocus="autofocus" required="required" spellcheck="false" placeholder="http://site.{one,two,three}.com&#10;ftp://ftp.numericals.com/file[1-100].txt&#10;ftp://ftp.numericals.com/file[001-100].txt (with leading zeros)&#10;ftp://ftp.letters.com/file[a-z].txt&#10;http://any.org/archive[1996-1999]/vol[1-4]/part{a,b,c}.html&#10;http://www.numericals.com/file[1-100:10].txt&#10;http://www.letters.com/file[a-z:2].txt"></textarea>
+			</div>
+			<div>
+				<input type="button" value="Generate URL" id="button" />
+			</div>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div>
+				<output id="output" for="input" role="button"></output>
+			</div>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var button=document.getElementById("button"),
+						worker=new Worker(URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"})));
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					button.addEventListener("ontouchend" in window?"touchend":"click",function(){
+						var input=document.getElementById("input");
+						if(input.validity.valid){
+							document.documentElement.style.cursor="wait";
+							button.disabled=!button.disabled;
+							worker.postMessage(input.value.split("\n"));
+						}
+					});
+					worker.addEventListener("message",function(e){
+						var output=document.getElementById("output");
+						setTimeout(function(){
+							while(output.hasChildNodes()){
+								output.removeChild(output.firstChild);
+							}
+							output.insertAdjacentHTML("BeforeEnd",e.data);
+							button.disabled=!button.disabled;
+							document.documentElement.style.removeProperty("cursor");
+						},0);
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					function error(detail,line,column,type){
+						type||(type=Error);
+						var error=new type(detail+" in line "+(++line)+" column "+(++column));
+						console.error(error);
+						parms=[[error.message]];
+						flag.error=true;
+					}
+					var input=e.data,
+						parms=[];
+					var ch,flag={},str,arr,
+						start,end,skip,chType,
+						i,j,k,l,m,
+						current,before,
+						output;
+					loop:for(i=-1;++i<input.length;){
+						input[i]=input[i].trim();
+						parms[i]=[];
+						str="";
+						for(j=-1;++j<input[i].length;){
+							ch=input[i].charAt(j);
+							flag.next=j+1<input[i].length;
+							if(!flag.surrogatePair&&ch>="\uD800"&&ch<"\uDC00"&&flag.next){
+								flag.surrogatePair=true;
+							}else if(flag.surrogatePair&&ch>="\uDC00"&&ch<"\uE000"){
+								flag.surrogatePair=false;
+							}else if(ch>="\uD800"&&ch<"\uE000"||flag.surrogatePair){
+								error("URI malformed",i,j,URIError);
+								break loop;
+							}
+							if(flag.sequences){
+								chType={};
+								chType[[ch>=0&&ch<=9?"number":ch>="A"&&ch<="Z"?"upperCase":ch>="a"&&ch<="z"?"lowerCase":"misc"]]=true;
+								if(ch==="]"&&start<end&&(flag.end||flag.skip&&(skip-=0))){
+									flag.skip||(skip=1);
+									arr=[];
+									if(flag.number){
+										start-=0;
+										end-=0;
+										k=flag.leadingZeros;
+										flag.leadingZeros="";
+										while(k--){
+											flag.leadingZeros+="0";
+										}
+										for(k=start;k<=end;k+=skip){
+											arr[arr.length]=(flag.leadingZeros+k).slice(-flag.leadingZeros.length);
+										}
+									}else if(flag.upperCase||flag.lowerCase){
+										start=start.charCodeAt(0);
+										end=end.charCodeAt(0);
+										for(k=start;k<=end;k+=skip){
+											arr[arr.length]=String.fromCharCode(k);
+										}
+									}
+									parms[i][parms[i].length]=[str,arr];
+									str="";
+									flag={};
+								}else if(ch==="-"&&flag.next&&flag.start&&start){
+									flag.leadingZeros&&(flag.leadingZeros=start.length);
+									flag.start=false;
+									flag.end=true;
+								}else if(ch===":"&&flag.next&&start&&flag.end&&end){
+										flag.end=false;
+										flag.skip=true;
+								}else if(chType.number&&flag.next&&(!flag.upperCase&&!flag.lowerCase||flag.skip)){
+									if(flag.start){
+										start||ch<1&&(flag.leadingZeros=true);
+										start+=ch;
+										flag.number=true;
+									}else if(flag.end){
+										end+=ch;
+									}else if(flag.skip){
+										skip+=ch;
+									}
+								}else if(chType.upperCase&&flag.next&&!flag.skip&&!flag.number&&!flag.lowerCase&&(!start||flag.end&&!end)){
+									if(flag.start){
+										start+=ch;
+										flag.upperCase=true;
+									}else if(flag.end){
+										end+=ch;
+									}else if(flag.skip){
+										skip+=ch;
+									}
+								}else if(chType.lowerCase&&flag.next&&!flag.skip&&!flag.number&&!flag.upperCase&&(!start||flag.end&&!end)){
+									if(flag.start){
+										start+=ch;
+										flag.lowerCase=true;
+									}else if(flag.end){
+										end+=ch;
+									}else if(flag.skip){
+										skip+=ch;
+									}
+								}else{
+								 	if(start||chType.number||chType.upperCase||chType.lowerCase){
+										error("bad range",i,j);
+										break loop;
+									}else{
+										error("bad range specification",i,j);
+										break loop;
+									}
+								}
+							}else if(flag.multiple){
+								if(ch==='"'){
+								}else if(ch==="}"){
+									if(arr[0]||arr.length>1){
+										parms[i][parms[i].length]=[str,arr];
+										str="";
+										flag={};
+									}else{
+										error("empty string within braces",i,j);
+										break loop;
+									}
+								}else if(ch===","&&flag.next){
+									arr[++k]="";
+								}else if(ch==="{"){
+									error("nested brace",i,j);
+									break loop;
+								}else if(flag.next){
+									arr[k]+=ch;
+								}else{
+									error("unmatched brace",i,j);
+									break loop;
+								}
+							}else if(ch==="["){
+								if(flag.next){
+									flag.start=true;
+									start="";
+									end="";
+									skip="";
+									flag.sequences=true;
+								}else{
+									error("bad range specification",i,j);
+									break loop;
+								}
+							}else if(ch==="{"){
+								if(flag.next){
+									arr=[""];
+									k=0;
+									flag.multiple=true;
+								}else{
+									error("unmatched brace",i,j);
+									break loop;
+								}
+							}else if(ch==="]"||ch==="}"){
+								error("unmatched close brace/bracket",i,j);
+								break loop;
+							}else{
+								str+=ch;
+								flag.next||(parms[i][parms[i].length]=[str,[""]]);
+							}
+						}
+						if(!flag.error){
+							for(j=parms[i].length;j--;){
+								current=parms[i].pop();
+								before=j?parms[i][j-1][1].concat():[""];
+								k=0;
+								for(l=-1;++l<before.length;){
+									for(m=-1;++m<current[1].length;){
+										str=before[l]+current[0]+current[1][m];
+										j?parms[i][j-1][1][k++]=str:parms[i][m]=str;
+									}
+								}
+							}
+						}
+						//console.log(parms[i]);
+					}
+					output="<ol>";
+					for(i=-1;++i<parms.length;){
+						for(j=-1;++j<parms[i].length;){
+							parms[i][j]=parms[i][j].replace(/&/g,"&amp;").replace(/[<>\"]/g,function(c){
+								return ({"<":"&lt;",">":"&gt;",'"':"&quot;"})[c];
+							});
+							flag.error||(parms[i][j]='<a href="'+parms[i][j]+'" download="'+new URL(parms[i][j]).pathname.split("/").pop()+'">'+parms[i][j]+"</a>");
+							//flag.error||(parms[i][j]=(parms[i][j].link(parms[i][j])));
+							output+="<li>"+parms[i][j]+"</li>";
+						}
+					}
+					output+="</ol>";
+					postMessage(output);
+				});
+			}());
+		</script>
+	</body>
+</html>

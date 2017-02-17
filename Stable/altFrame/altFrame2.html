@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>IFRAME of alternative of FRAME</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				#origin{
+					margin:0;
+					padding:0;
+				}
+				#origin>iframe{
+					vertical-align:top;
+					box-sizing:border-box;
+					border:0;
+				}
+			}
+			@media screen{
+				#nav{
+					width:27.77%;
+				}
+				#article{
+					width:72.22%;
+				}
+				:root,#origin,#origin>iframe{
+					height:100%;
+				}
+			}
+			@media print{
+				#origin>iframe{
+					width:100%;
+				}
+				:root,#origin,#origin>iframe{
+					height:100%;
+				}
+			}
+		</style>
+	</head>
+	<body id="origin">
+		<!--Recommend additional "sandbox" attribute-->
+		<iframe src="nav.html" id="nav"></iframe><iframe src="iroha.html" id="article" name="article"></iframe>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function error(message){
+						console.error(Error(message));
+						flag.error=true;
+					}
+					var iframes=document.getElementsByTagName("iframe"),
+						flag={},
+						places={};
+					var params,iframe,i,j;
+					for(i=-1;iframes[++i];){
+						if(flag.error){
+							break;
+						}else{
+							if(!iframes[i].src){
+								error("No src attribute of IFRAME element in root page");
+							}else if(!iframes[i].id){
+								error("No id attribute of IFRAME element in root page");
+							}else{
+								iframes[i].addEventListener("load",function(e){
+									var iframe=e.target,
+										iframeURL=iframe.contentDocument.URL,
+										params=[];
+									var i;
+									if(iframe.defaultSrc===iframeURL){
+										delete places[iframe.id];
+									}else{
+										places[iframe.id]=encodeURIComponent(iframeURL);
+									}
+									for(i in places){
+										params[params.length]=i+"="+places[i];
+									}
+									location.replace("#"+params.join("&"));
+								});
+								iframes[i].defaultSrc=iframes[i].src;
+							}
+						}
+					}
+					if(!flag.error){
+						if(location.hash){
+							var hash=location.hash.replace("#","").split("&");
+							for(i=-1;hash[++i];){
+								params=hash[i].split("=");
+								places[params[0]]=decodeURIComponent(params[1]);
+							}
+							for(i in places){
+								iframe=document.getElementById(i);
+								if(!iframe){
+									error("Elements of specified ID("+i+") in URL doesn't exist");
+								}else if(iframe.tagName!=="IFRAME"){
+									error("Elements of specified ID("+i+") in URL isn't in IFRAME");
+								}else{
+									iframe.src=places[i];
+									if(location.origin!==(new URL(iframe.src)).origin){
+										for(j=iframe.sandbox.length;j--;){
+											if(iframe.sandbox[j]==="allow-same-origin"){
+												break;
+											}
+										}
+										try{
+											j<0&&(iframe.sandbox.value+="allow-same-origin");
+										}catch(e){
+											iframe.src="";
+										}
+										error("Loaded hash("+places[i]+") is different with origin of URL("+location.origin+")");
+									}
+								}
+							}
+						}
+					}
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

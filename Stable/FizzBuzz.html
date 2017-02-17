@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>FizzBuzz</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				ol{
+					margin-left:10em;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<div><label for="number">MAX:</label><input type="number" value="10000" min="0" max="2147483648" required="required" id="number" /></div>
+		<div>
+			<input type="button" value="TYPE0" id="type0" />
+			<input type="button" value="TYPE1" id="type1" />
+			<input type="button" value="TYPE2" id="type2" />
+		</div>
+		<div>
+			<output id="result"></output>
+		</div>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function switchWorking(element){
+						element.disabled=!element.disabled;
+						element.disabled?document.documentElement.style.cursor="wait":document.documentElement.style.removeProperty("cursor");
+					}
+					var supportEvent="ontouchend" in window?"touchend":"click",
+						number=document.getElementById("number"),
+						inputs=Array.from(document.body.querySelectorAll("[type=\"button\"][value^=\"TYPE\"]")),
+						result=document.getElementById("result");
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					document.getElementById("type0").addEventListener(supportEvent,function(){
+						inputs.forEach(switchWorking);
+						if(number.validity.valid){
+							var blob=URL.createObjectURL(new Blob([document.getElementById("worker0").firstChild.nodeValue],{"type":"text/javascript"})),
+								worker=new Worker(blob),
+								num=number.value;
+							while(result.hasChildNodes()){
+								result.removeChild(result.firstChild);
+							}
+							var start=performance.now();
+							worker.postMessage(num);
+							worker.addEventListener("message",function(e){
+								var o=e.data,
+									arr=[];
+								var i,len;
+								for(i=0;i++<num;){
+									arr[i]=i in o?o[i]:i;
+								}
+								var end=performance.now(),
+									time=end-start+"ms";
+								result.appendChild(document.createElement("div")).textContent="Time:"+time;
+								console.log(time);
+								setTimeout(function(){
+									var ol=document.createElement("ol"),
+										template={"li":document.createElement("li")};
+										arr=arr;
+									var i,len;
+									for(i=0,len=arr.length;++i<len;){
+										ol.appendChild(template.li.cloneNode()).textContent=arr[i];
+									}
+									result.appendChild(ol);
+									e.target.terminate();
+									URL.revokeObjectURL(blob);
+									inputs.forEach(switchWorking);
+								});
+							});
+						}
+					});
+					document.getElementById("type1").addEventListener(supportEvent,function(){
+						inputs.forEach(switchWorking);
+						if(number.validity.valid){
+							var blob=URL.createObjectURL(new Blob([document.getElementById("worker1").firstChild.nodeValue],{"type":"text/javascript"})),
+								worker=new Worker(blob),
+								num=number.value,
+								thread=navigator.hardwareConcurrency||1,
+								obj={};
+							var arr,i,j;
+							while(result.hasChildNodes()){
+								result.removeChild(result.firstChild);
+							}
+							var start=performance.now();
+							for(i=thread;i--;){
+								arr=[];
+								for(j=0;j++<num;){
+									if(j%thread===i){
+										arr[arr.length]=j;
+									}
+								}
+								worker.postMessage(arr);
+							}
+							worker.addEventListener("message",function(e){
+								var o=e.data,
+									arr=[];
+								var i,len;
+								for(i in o){
+									obj[i]=o[i];
+								}
+								if(!--thread){
+									for(i=0;i++<num;){
+										arr[i]=i in obj?obj[i]:i;
+									}
+									var end=performance.now(),
+										time=end-start+"ms";
+									result.appendChild(document.createElement("div")).textContent="Time:"+time;
+									console.log(time);
+									setTimeout(function(){
+										var ol=document.createElement("ol"),
+											template={"li":document.createElement("li")};
+											arr=arr;
+										var i,len;
+										for(i=0,len=arr.length;++i<len;){
+											ol.appendChild(template.li.cloneNode()).textContent=arr[i];
+										}
+										result.appendChild(ol);
+										e.target.terminate();
+										URL.revokeObjectURL(blob);
+										inputs.forEach(switchWorking);
+									});
+								}
+							});
+						}
+					});
+					document.getElementById("type2").addEventListener(supportEvent,function(){
+						inputs.forEach(switchWorking);
+						if(number.validity.valid){
+							var blob=URL.createObjectURL(new Blob([document.getElementById("worker2").firstChild.nodeValue],{"type":"text/javascript"})),
+								worker=[],
+								num=number.value,
+								thread=navigator.hardwareConcurrency||1,
+								obj={};
+							var arr,i,j;
+							while(result.hasChildNodes()){
+								result.removeChild(result.firstChild);
+							}
+							var start=performance.now();
+							for(i=0;i<thread;i++){
+								worker[i]=new Worker(blob);
+								arr=[];
+								for(j=0;j++<num;){
+									if(j%thread===i){
+										arr[arr.length]=j;
+									}
+								}
+								worker[i].postMessage(arr);
+								worker[i].addEventListener("message",function(e){
+									var o=e.data,
+										arr=[];
+									var i,len;
+									for(i in o){
+										obj[i]=o[i];
+									}
+									if(!--thread){
+										for(i=0;i++<num;){
+											arr[i]=i in obj?obj[i]:i;
+										}
+										var end=performance.now(),
+											time=end-start+"ms";
+										result.appendChild(document.createElement("div")).textContent="Time:"+time;
+										console.log(time);
+										setTimeout(function(){
+											var ol=document.createElement("ol"),
+												template={"li":document.createElement("li")};
+												arr=arr;
+											var i,len;
+											for(i=0,len=arr.length;++i<len;){
+												ol.appendChild(template.li.cloneNode()).textContent=arr[i];
+											}
+											result.appendChild(ol);
+											URL.revokeObjectURL(blob);
+											inputs.forEach(switchWorking);
+										});
+									}
+									e.target.terminate();
+								});
+							}
+						}
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker0" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var n=e.data,
+						o={};
+					var i,b;
+					for(i=0;i++<n;){
+						b=[!(i%3),!(i%5)];
+						if(b[0]||b[1]){
+							o[i]="";
+							b[0]&&(o[i]+="Fizz");
+							b[1]&&(o[i]+="Buzz");
+						}
+					}
+					postMessage(o);
+				});
+			}());
+		</script>
+		<script id="worker1" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var arr=e.data,
+						o={};
+					var i,b;
+					for(i=arr.length;i-->1;){
+						b=[!(arr[i]%3),!(arr[i]%5)];
+						if(b[0]||b[1]){
+							o[arr[i]]="";
+							b[0]&&(o[arr[i]]+="Fizz");
+							b[1]&&(o[arr[i]]+="Buzz");
+						}
+					}
+					postMessage(o);
+				});
+			}());
+		</script>
+		<script id="worker2" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var arr=e.data,
+						o={};
+					var i,b;
+					for(i=arr.length;i-->1;){
+						b=[!(arr[i]%3),!(arr[i]%5)];
+						if(b[0]||b[1]){
+							o[arr[i]]="";
+							b[0]&&(o[arr[i]]+="Fizz");
+							b[1]&&(o[arr[i]]+="Buzz");
+						}
+					}
+					postMessage(o);
+				});
+			}());
+		</script>
+	</body>
+</html>

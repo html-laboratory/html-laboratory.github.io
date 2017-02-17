@@ -1,0 +1,147 @@
+<?XML version="1.0" ?>
+<package>
+	<job>
+		<runtime>
+			<description><![CDATA[This script update or install CCleaner.
+How to register to Task Scheduler:
+schtasks /create /tn "Update-CCleaner" /sc weekly /st 00:00 /tr "'%SystemRoot%\system32\wscript.exe' //Nologo '<Update-CCleaner.wsf>' /Auto"]]></description>
+			<named name="Auto" helpstring="Automatically exit after executing the script." />
+			<example><![CDATA[Update-CCleaner.wsf
+Update-CCleaner.wsf /Auto]]></example>
+		</runtime>
+		<script language="JScript">
+			<![CDATA[
+				(function(){
+					var WshShell=WScript.CreateObject("WScript.Shell"),
+						fso=WScript.CreateObject("Scripting.FileSystemObject");
+					var errorcode=0,
+						xhr,flag,i;
+					if(!WScript.Arguments.Named.Exists("Auto")&&fso.GetFileName(WScript.FullName).toLowerCase()==="wscript.exe"){
+						WshShell.Run('"'+fso.BuildPath(fso.GetParentFolderName(WScript.FullName),"CScript.exe")+'" //Nologo "'+WScript.ScriptFullName+'"',1);
+					}else{
+						var useDic=function(){
+								return {
+									"initialize":{
+										"start":"Initializing",
+										"end":"    Done!",
+										"error":'    Failed:Could not create object "Msxml2.XMLHTTP.6.0"'
+									},
+									"download":{
+										"start":"Downloading "+this.fileName,
+										"end":"    Done!",
+										"error":"    Failed"
+									},
+									"save":{
+										"start":"Saving "+this.fileName,
+										"end":"    Done!",
+										"error":"    Failed"
+									},
+									"extract":{
+										"start":"Extracting "+this.fileName,
+										"end":"    Done!",
+										"error":'    Failed:"zipfldr.dll" may not be registered'
+									},
+									"remove":{
+										"start":"Deleting "+this.fileName,
+										"end":"    Done!",
+										"error":"    Failed"
+									},
+									"success":"Succeeded!",
+									"pressEnterKey":"Press Enter key . . . "
+								};
+							},
+							output=function(message,destination,line){
+								WScript.Arguments.Named.Exists("Auto")||WScript["Std"+destination]["Write"+(line?"Line":"")](message);
+							};
+						output(useDic().initialize.start,"Out");
+						try{
+							xhr=WScript.CreateObject("Msxml2.XMLHTTP.6.0");
+						}catch(e){}
+						if(xhr){
+							var DLFile=function(url,fileName,onend){
+									this.url=url;
+									this.fileName=fileName;
+									onend&&(this.onend=onend);
+								},
+								DLFiles=[
+									new DLFile(
+										"https://www.piriform.com/ccleaner/download/portable/downloadfile",
+										"ccsetup.zip",
+										function(path){
+											var objShell=WScript.CreateObject("Shell.Application"),
+												process;
+											try{
+												output(this.useDic().extract.start,"Out");
+												process=0;
+												objShell.NameSpace(WshShell.CurrentDirectory).CopyHere(objShell.NameSpace(path).Items(),16);
+												output(this.useDic().extract.end,"Out",true);
+												output(this.useDic().remove.start,"Out");
+												process=1;
+												fso.DeleteFile(path,true);
+												output(this.useDic().remove.end,"Out",true);
+											}catch(e){
+												output([
+													this.useDic().extract.error,
+													this.useDic().remove.error
+												][process],"Err",true);
+												errorcode=process+4;
+											}
+										}
+									),
+									new DLFile(
+										"https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp2.ini",
+										"Winapp2.ini"
+									)
+								],
+							stream=WScript.CreateObject("Adodb.Stream");
+							DLFile.prototype.useDic=useDic;
+							DLFile.prototype.onload=function(){
+								var path;
+								output(this.useDic().download.end,"Out","WriteLine");
+								output(this.useDic().save.start,"Out");
+								path=fso.BuildPath(WshShell.CurrentDirectory,this.fileName);
+								try{
+									stream.Open();
+									stream.Write(xhr.responseBody);
+									stream.SaveToFile(path,2);
+									stream.Close();
+									output(this.useDic().save.end,"Out",true);
+								}catch(e){
+									output(this.useDic().save.error,"Err",true);
+									errorcode=3;
+								}
+								this.onend&&this.onend(path);
+							};
+							stream.Type=1;
+							WshShell.CurrentDirectory=fso.GetParentFolderName(WScript.ScriptFullName);
+							output(useDic().initialize.end,"Out",true);
+							for(i=-1;++i<DLFiles.length;){
+								output(DLFiles[i].useDic().download.start,"Out");
+								xhr.open("GET",DLFiles[i].url,false);
+								flag=false;
+								try{
+									xhr.onreadystatechange=function(){
+										flag=xhr.readyState===4&&xhr.status===200;
+									};
+									xhr.send();
+								}catch(e){
+									xhr.abort();
+									output(DLFiles[i].useDic().error,"Err",true);
+									errorcode=2;
+								}
+								flag&&DLFiles[i].onload();
+							}
+							output(useDic().success,"Out",true);
+						}else{
+							output(useDic().initialize.error,"Err",true);
+							errorcode=1;
+						}
+						output(useDic().pressEnterKey,"Out",true);
+						WScript.StdIn.ReadLine();
+						WScript.Quit(errorcode);
+					}
+				}());
+			]]>
+		</script>
+	</job>
+</package>

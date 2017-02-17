@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Flashlight</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<style>
+			@media all{
+				body{
+					background-color:#fff;
+					margin:0;
+				}
+				div{
+					width:100vw;
+					height:100vh;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<script async="async">
+			"use strict";
+			(function(global){
+				global.addEventListener("load",function main(e){
+					function switchFlashlight(e){
+						var keyCode=e.keyCode;
+						(e.type!=="keydown"||keyCode===13||keyCode===32)&&(document.styleSheets[0].cssRules[0].cssRules[0].style.backgroundColor=["#fff","#000"][(flag=!flag)-0]);
+					}
+					var flag;
+					document.body.appendChild(document.createElement("div")).addEventListener("ontouchstart" in global?"touchstart":"mousedown",switchFlashlight);
+					document.body.addEventListener("keydown",switchFlashlight);
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}(this));
+		</script>
+	</body>
+</html>

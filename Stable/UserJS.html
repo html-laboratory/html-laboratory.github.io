@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>UserJS</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="https://tampermonkey.net" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				dd{
+					white-space:pre;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div>Support <a href="https://tampermonkey.net/">Tampermonkey</a> of Google Chrome, Firefox and Safari 10.</div>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					const userjs=document.body.querySelectorAll("script[type=\"text/userjs\"]"),
+						template={
+							"a":document.createElement("a"),
+							"dt":document.createElement("dt"),
+							"dd":document.createElement("dd")
+						},
+						dl=document.createElement("dl");
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					for(let i=-1;++i<userjs.length;){
+						let a=template.a.cloneNode();
+						a.href="data:text/javascript;charset=utf-8,"+encodeURIComponent(userjs[i].firstChild.nodeValue.replace(/(?:^\n+|\n+$)*/g,"").replace(/^\t+/gm,""));
+						a.download=userjs[i].id+".user.js";
+						dl.appendChild(template.dt.cloneNode()).appendChild(a).appendChild(document.createTextNode(userjs[i].id));
+						dl.appendChild(template.dd.cloneNode()).appendChild(document.createTextNode(userjs[i].title));
+					}
+					document.body.appendChild(dl);
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script type="text/userjs" id="AMPにリダイレクト" title="訪れたWebページにAMP（Accelerated Mobile Pages）版があれば表示します。">
+			// ==UserScript==
+			// @name         AMPにリダイレクト
+			// @match        *://*/*
+			// @run-at       document-body
+			// @grant        none
+			// ==/UserScript==
+			(()=>{
+			    'use strict';
+			    document.head.addEventListener('complete',function apply(e){
+			        var node=e.target,
+			            amphtml=node.querySelector('link[rel="amphtml" i][href]');
+			        if(amphtml){
+			            location.replace(amphtml.href);
+			        }
+			        node.removeEventListener(e.type,apply);
+			    });
+			    document.head.dispatchEvent(new Event('complete'));
+			})();
+		</script>
+		<script type="text/userjs" id="スタイルを無効" title="CSSとHTMLで非推奨の要素・属性を無効化します。">
+			// ==UserScript==
+			// @name         スタイルを無効
+			// @match        *://*/*
+			// @run-at       document-end
+			// @grant        none
+			// ==/UserScript==
+			(()=>{
+			    'use strict';
+			        const apply=(e)=>{
+			            if(e.type==='complete'){
+			                const node=e.target;
+			                disable[0](node);
+			                node.removeEventListener(e.type,apply);
+			            }else if(e.type==='childList'&&e.addedNodes.length){
+			                for(let i=e.addedNodes.length;i--;){
+			                    const node=e.addedNodes[i];
+			                    if(node.nodeType===1){
+			                        disable[0](node);
+			                        if(node.matches(query.removeChild)){
+			                            node.parentNode.removeChild(node);
+			                        }
+			                        if(node.matches(query.disableElement)){
+			                            const range=document.createRange();
+			                            range.selectNodeContents(node);
+			                            node.parentNode.replaceChild(range.cloneContents(),node);
+			                            range.detach();
+			                        }
+			                        disable[1](node);
+			                    }
+			                }
+			            }else if(e.type==='attributes'){
+			                disable[1](e.target);
+			            }
+			        },
+			              query={
+			                  'removeChild':'style,link[rel="stylesheet" i],applet,command,keygen,nextid,nobr,spacer',
+			                  'disableElement':'acronym,basefont,big,blink,center,content,dir,font,isindex,listing,marquee,multicol,noembed,strike,tt,xmp',
+			                  'removeAttribute':[
+			                      {
+			                          'selector':'[style],[align],[alink],[allowtransparency],[background],[bgcolor],[bgproperties],[bordercolor],[bordercolordark],[bordercolorlight],[bottommargin],[cellpadding],[collspacing],[char],[charoff],[clear],[color],[compact],[frame],[frameborder],[hspace],[leftmargin],[link],[marginheight],[marginwidth],[noshade],[nowrap],[rightmargin],[rules],[scrolling],[text],[topmargin],[valign],[vlink],[vspace]',
+			                          'remove':['target','formtarget','align','alink','allowtransparency','background','bgcolor','bgproperties','bordercolor','bordercolordark','bordercolorlight','bottommargin','cellpadding','cellspacing','char','charoff','clear','color','compact','frame','frameborder','hspace','leftmargin','link','marginheight','marginwidth','noshade','nowrap','rightmargin','rules','scrolling','text','topmargin','valign','vlink','vspace']
+			                      },
+			                      {
+			                          'selector':'li[type],ul[type],li[value]',
+			                          'remove':['type','value']
+			                      },
+			                      {
+			                          'selector':':not(img):not(canvas):not(input):not(video):not(iframe):not(object):not(embed)[height],:not(img):not(canvas):not(input):not(video):not(iframe):not(object):not(embed)[width]',
+			                          'remove':['height','width']
+			                      },
+			                      {
+			                          'selector':':not(input):not(select)[size]',
+			                          'remove':['size']
+			                      }
+			                  ]
+			              },
+			              attributeFilter=[],
+			              disable=[
+			                  (node)=>{
+			                      let nodes=node.querySelectorAll(query.removeChild);
+			                      for(let i=nodes.length;i--;){
+			                          const node=nodes[i];
+			                          node.parentNode.removeChild(node);
+			                      }
+			                      nodes=node.querySelectorAll(query.disableElement);
+			                      if(nodes.length){
+			                          const range=document.createRange();
+			                          for(let i=nodes.length;i--;){
+			                              const node=nodes[i];
+			                              range.selectNodeContents(node);
+			                              node.parentNode.replaceChild(range.cloneContents(),node);
+			                          }
+			                          range.detach();
+			                      }
+			                      for(let i=query.removeAttribute.length;i--;){
+			                          nodes=node.querySelectorAll(query.removeAttribute[i].selector);
+			                          for(let j=nodes.length;j--;){
+			                              const node=nodes[j];
+			                              for(let k=query.removeAttribute[i].remove.length;k--;){
+			                                  if(node.hasAttribute(query.removeAttribute[i].remove[k])){
+			                                      node.removeAttribute(query.removeAttribute[i].remove[k]);
+			                                  }
+			                              }
+			                          }
+			                      }
+			                  },
+			                  (node)=>{
+			                      for(let i=query.removeAttribute.length;i--;){
+			                          if(node.matches(query.removeAttribute[i].selector)){
+			                              for(let j=query.removeAttribute[i].remove.length;j--;){
+			                                  if(node.hasAttribute(query.removeAttribute[i].remove[j])){
+			                                      node.removeAttribute(query.removeAttribute[i].remove[j]);
+			                                  }
+			                              }
+			                          }
+			                      }
+			                  }
+			              ];
+			        for(let i=query.removeAttribute.length;i--;){
+			            [].push.apply(attributeFilter,query.removeAttribute[i].remove);
+			        }
+			        document.addEventListener('complete',apply);
+			        document.dispatchEvent(new Event('complete'));
+			        (new MutationObserver((mutations)=>{
+			            mutations.forEach(apply);
+			        })).observe(document.documentElement,{
+			            'childList':true,
+			            'attributes':true,
+			            'attributeFilter':attributeFilter,
+			            'subtree':true
+			        });
+			})();
+		</script>
+		<script type="text/userjs" id="セキュリティを強化" title="経路暗号化されないおそれのあるフォームからのデータ送信を警告し、コンテンツ表示制限がないインラインフレームを制限します。&#10;次の条件のときのフォームボタンを一時的に無効化します。クライアントからサーバーへデータ送信する手段はフォーム以外もあるため、過信しないでください。&#10;http://* HTTP POSTメソッドのフォームボタン&#10;https://* 処理プログラムのURLがhttp://*になっているHTTP POSTメソッドのフォームボタン&#10;次の条件のときにIFRAME要素にsandbox属性を強制的に付加します。&#10;* sandbox属性がないIFRAME要素">
+			// ==UserScript==
+			// @name         セキュリティを強化
+			// @match        *://*/*
+			// @run-at       document-body
+			// @grant        none
+			// ==/UserScript==
+			(()=>{
+			    'use strict';
+			    var className='',
+			        flag;
+			    const apply=(e)=>{
+			        if(e.type==='complete'){
+			            let node=e.target;
+			            strengthenSecurity[0](node);
+			            node.removeEventListener(e.type,apply);
+			        }else if(e.type==='childList'&&e.addedNodes.length){
+			            for(let i=e.addedNodes.length;i--;){
+			                const node=e.addedNodes[i];
+			                if(node.nodeType===1){
+			                    strengthenSecurity[0](node);
+			                    strengthenSecurity[1](node);
+			                }
+			            }
+			        }else if(e.type==='attributes'){
+			            strengthenSecurity[1](e.target);
+			        }
+			    },
+			          enableButton=(e)=>{
+			              e.preventDefault();
+			              const target=e.target;
+			              target.classList.remove(className);
+			              target.removeEventListener(e.type,enableButton);
+			          },
+			          disableSubmit=(form)=>{
+			              form.classList.add(className);
+			              if(!flag){
+			                  let style=document.createElement('style');
+			                  style.className=className;
+			                  style.appendChild(document.createTextNode(`@media screen{form.${className} [type="submit" i]:not([disabled]),form.${className} [type="image" i]:not([disabled]){border:red solid medium !important;background-color:red !important;}}`));
+			                  document.head.appendChild(style);
+			                  flag=true;
+			              }
+			              form.addEventListener('submit',enableButton);
+			          },
+			          chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+			          https=(location.protocol==='https:')|0;
+			    for(let i=-1;++i<32;){
+			        let length=[62,52][!i|0];
+			        className+=chars.substr(0,length).charAt(Math.random()*length|0);
+			    }
+			    const selector={
+			        'form':[
+			            `form[method="post" i]:not(.${className}) [type="submit" i]:not([disabled]),form[method="post" i]:not(.${className}) [type="image" i]:not([disabled]),form:not(.${className}) [formmethod="post" i]:not([disabled])`,
+			            `form[action^="http://" i][method="post" i]:not(.${className}) [type="submit" i]:not([disabled]),form[action^="http://" i][method="post" i]:not(.${className}) [type="image" i]:not([disabled]),form[method="post" i]:not(.${className}) [formaction^="http://" i]:not([disabled]),form[action^="http://" i]:not(.${className}) [formmethod="post" i]:not([disabled]),form:not(.${className}) [formaction^="http://" i][formmethod="post" i]:not([disabled])`
+			        ][https],
+			        'iframe':'iframe:not([sandbox])'
+			    },
+			          strengthenSecurity=[
+			              (node)=>{
+			                  var nodes=node.querySelectorAll(selector.form);
+			                  for(let i=nodes.length;i--;){
+			                      disableSubmit(nodes[i].form);
+			                  }
+			                  nodes=node.querySelectorAll(selector.iframe);
+			                  for(let i=nodes.length;i--;){
+			                      nodes[i].setAttribute('sandbox','');
+			                  }
+			              },
+			              (node)=>{
+			                  if(node.matches(`form[method="post" i]:not(.${className})`)&&node.querySelector(selector.form)){
+			                      disableSubmit(node);
+			                  }else if(node.matches(selector.form)){
+			                      disableSubmit(node.form);
+			                  }else if(node.matches(selector.iframe)){
+			                      node.setAttribute('sandbox','');
+			                  }
+			              }
+			          ];
+			    document.body.addEventListener('complete',apply);
+			    document.body.dispatchEvent(new Event('complete'));
+			    (new MutationObserver((mutations)=>{
+			        mutations.forEach(apply);
+			    })).observe(document.body,{
+			        'childList':true,
+			        'attributes':true,
+			        'attributeFilter':['sandbox','action','method','formaction','formmethod','type','disabled'],
+			        'subtree':true
+			    });
+			})();
+		</script>
+		<script type="text/userjs" id="非推奨要素・属性を無効" title="HTML・XHTMLで廃止・非推奨の要素・属性を無効化し、リンク・フォームボタンを現在のタブで開かせます。">
+			// ==UserScript==
+			// @name         非推奨要素・属性を無効
+			// @match        *://*/*
+			// @run-at       document-end
+			// @grant        none
+			// ==/UserScript==
+			(()=>{
+			    'use strict';
+			    const html=document.documentElement;
+			    if(!html.hasAttribute('amp')&&!html.hasAttribute('⚡')){
+			        const apply=(e)=>{
+			            if(e.type==='complete'){
+			                const node=e.target;
+			                disable[0](node);
+			                node.removeEventListener(e.type,apply);
+			            }else if(e.type==='childList'&&e.addedNodes.length){
+			                for(let i=e.addedNodes.length;i--;){
+			                    const node=e.addedNodes[i];
+			                    if(node.nodeType===1){
+			                        disable[0](node);
+			                        if(node.matches(query.removeChild)){
+			                            node.parentNode.removeChild(node);
+			                        }
+			                        if(node.matches(query.disableElement)){
+			                            const range=document.createRange();
+			                            range.selectNodeContents(node);
+			                            node.parentNode.replaceChild(range.cloneContents(),node);
+			                            range.detach();
+			                        }
+			                        disable[1](node);
+			                    }
+			                }
+			            }else if(e.type==='attributes'){
+			                disable[1](e.target);
+			            }
+			        },
+			              query={
+			                  'removeChild':'applet,command,keygen,nextid,nobr,spacer',
+			                  'disableElement':'acronym,basefont,big,blink,center,content,dir,font,isindex,listing,marquee,multicol,noembed,strike,tt,xmp',
+			                  'removeAttribute':[
+			                      {
+			                          'selector':'[target="_blank\" i],[formtarget="_blank" i],[align],[alink],[allowtransparency],[background],[bgcolor],[bgproperties],[bordercolor],[bordercolordark],[bordercolorlight],[bottommargin],[cellpadding],[collspacing],[char],[charoff],[clear],[color],[compact],[frame],[frameborder],[hspace],[leftmargin],[link],[marginheight],[marginwidth],[noshade],[nowrap],[rightmargin],[rules],[scrolling],[text],[topmargin],[valign],[vlink],[vspace]',
+			                          'remove':['target','formtarget','align','alink','allowtransparency','background','bgcolor','bgproperties','bordercolor','bordercolordark','bordercolorlight','bottommargin','cellpadding','cellspacing','char','charoff','clear','color','compact','frame','frameborder','hspace','leftmargin','link','marginheight','marginwidth','noshade','nowrap','rightmargin','rules','scrolling','text','topmargin','valign','vlink','vspace']
+			                      },
+			                      {
+			                          'selector':'li[type],ul[type],li[value]',
+			                          'remove':['type','value']
+			                      },
+			                      {
+			                          'selector':':not(img):not(canvas):not(input):not(video):not(iframe):not(object):not(embed)[height],:not(img):not(canvas):not(input):not(video):not(iframe):not(object):not(embed)[width]',
+			                          'remove':['height','width']
+			                      },
+			                      {
+			                          'selector':':not(input):not(select)[size]',
+			                          'remove':['size']
+			                      }
+			                  ]
+			              },
+			              attributeFilter=[],
+			              disable=[
+			                  (node)=>{
+			                      let nodes=node.querySelectorAll(query.removeChild);
+			                      for(let i=nodes.length;i--;){
+			                          const node=nodes[i];
+			                          node.parentNode.removeChild(node);
+			                      }
+			                      nodes=node.querySelectorAll(query.disableElement);
+			                      if(nodes.length){
+			                          const range=document.createRange();
+			                          for(let i=nodes.length;i--;){
+			                              const node=nodes[i];
+			                              range.selectNodeContents(node);
+			                              node.parentNode.replaceChild(range.cloneContents(),node);
+			                          }
+			                          range.detach();
+			                      }
+			                      for(let i=query.removeAttribute.length;i--;){
+			                          nodes=node.querySelectorAll(query.removeAttribute[i].selector);
+			                          for(let j=nodes.length;j--;){
+			                              const node=nodes[j];
+			                              for(let k=query.removeAttribute[i].remove.length;k--;){
+			                                  if(node.hasAttribute(query.removeAttribute[i].remove[k])){
+			                                      node.removeAttribute(query.removeAttribute[i].remove[k]);
+			                                  }
+			                              }
+			                          }
+			                      }
+			                  },
+			                  (node)=>{
+			                      for(let i=query.removeAttribute.length;i--;){
+			                          if(node.matches(query.removeAttribute[i].selector)){
+			                              for(let j=query.removeAttribute[i].remove.length;j--;){
+			                                  if(node.hasAttribute(query.removeAttribute[i].remove[j])){
+			                                      node.removeAttribute(query.removeAttribute[i].remove[j]);
+			                                  }
+			                              }
+			                          }
+			                      }
+			                  }
+			              ];
+			        for(let i=query.removeAttribute.length;i--;){
+			            [].push.apply(attributeFilter,query.removeAttribute[i].remove);
+			        }
+			        document.addEventListener('complete',apply);
+			        document.dispatchEvent(new Event('complete'));
+			        (new MutationObserver((mutations)=>{
+			            mutations.forEach(apply);
+			        })).observe(document.documentElement,{
+			            'childList':true,
+			            'attributes':true,
+			            'attributeFilter':attributeFilter,
+			            'subtree':true
+			        });
+			    }
+			})();
+		</script>
+	</body>
+</html>

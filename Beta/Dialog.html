@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Title</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				dialog[open]{
+					display:block;
+					position: absolute;
+					left: 0;
+					right: 0;
+					top:0;
+					bottom:0;
+					width:-moz-fit-content;
+					height:-moz-fit-content;
+					color: black;
+					margin: auto;
+					border-style: solid;
+					padding: 1em;
+					background: white;
+				}
+				dialog:not([open]){
+					display:none;
+				}
+				dialog::backdrop{
+					position: fixed;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					left: 0;
+					background: rgba(0, 0, 0, 0.0980392);
+				}
+				body{
+					background: rgba(0, 0, 0, 0.0980392);
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<div>BACKGROUND</div>
+		<dialog>DIALOG</dialog>
+		<dialog open>DIALOG OPENED</dialog>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

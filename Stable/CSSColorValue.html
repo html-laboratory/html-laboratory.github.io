@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Color Value</title>
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<link rel="dns-prefetch" href="https://developer.mozilla.org" />
+	</head>
+	<body>
+		<dl>
+			<dt>Source</dt>
+			<dd><a href="https://developer.mozilla.org/en/CSS/color_value" rel="external">color value - MDC</a></dd>
+		</dl>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var blob=URL.createObjectURL(new Blob([document.querySelector('[type="text/js-worker"]').firstChild.nodeValue],{"type":"text/javascript"})),
+						worker=new Worker(blob);
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					worker.postMessage(JSON.parse(document.querySelector('[type="application/json"]').firstChild.nodeValue));
+					worker.addEventListener("message",function(e){
+						setTimeout(function(){
+							var data=e.data;
+							document.getElementsByTagName("head")[0].insertAdjacentHTML("BeforeEnd",data.style);
+							document.getElementsByTagName("header")[0].insertAdjacentHTML("AfterEnd",data.table);
+						},0);
+						e.target.terminate();
+						URL.revokeObjectURL(blob);
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var data=e.data;
+					var style="<style>@media all{td:first-of-type:empty{width:32px;}",
+						table="<table><thead><tr><th>Color</th><th>System Colors</th><th>Description</th></tr></thead><tbody>",
+						i;
+					for(i in data){
+						style+=`#${i}{background-color:${i};}`;
+						table+=`<tr><td id="${i}"></td><td>${i}</td><td>${data[i]}</td></tr>`;
+					}
+					table+="</tbody></table>";
+					style+="}</style>";
+					postMessage({
+						"style":style,
+						"table":table
+					});
+				});
+			}());
+		</script>
+		<script type="application/json">
+			{
+				"ActiveBorder":"Active window border.",
+				"ActiveCaption":"Active window caption. Should be used with CaptionText foreground color.",
+				"AppWorkspace":"Background color of multiple document interface.",
+				"Background":"Desktop background.",
+				"ButtonFace":"Face background color for 3-D elements that appear 3-D due to one layer of surrounding border. Should be used with ButtonText foreground color.",
+				"ButtonHighlight":"The color of the border facing the light source for 3-D elements that appear 3-D due to one layer of surrounding border.",
+				"ButtonShadow":"The color of the border away from the light source for 3-D elements that appear 3-D due to one layer of surrounding border.",
+				"ButtonText":"Text on push buttons. Should be used with ButtonFace or ThreeDFace background color.",
+				"CaptionText":"Text in caption, size box, and scrollbar arrow box. Should be used with ActiveCaption background color.",
+				"GrayText":"Grayed (disabled) text.",
+				"Highlight":"Item(s) selected in a control. Should be used with HighlightText foreground color.",
+				"HighlightText":"Text of item(s) selected in a control. Should be used with Highlight background color.",
+				"InactiveBorder":"Inactive window border.",
+				"InactiveCaption":"Inactive window caption. Should be used with InactiveCaptionText foreground color.",
+				"InactiveCaptionText":"Color of text in an inactive caption. Should be used with InactiveCaption background color.",
+				"InfoBackground":"Background color for tooltip controls. Should be used with InfoText foreground color.",
+				"InfoText":"Text color for tooltip controls. Should be used with InfoBackground background color.",
+				"Menu":"Menu background. Should be used with MenuText or -moz-MenuBarText foreground color.",
+				"MenuText":"Text in menus. Should be used with Menu background color.",
+				"Scrollbar":"Scroll bar gray area.",
+				"ThreeDDarkShadow":"The color of the darker (generally outer) of the two borders away from the light source for 3-D elements that appear 3-D due to two concentric layers of surrounding border.",
+				"ThreeDFace":"The face background color for 3-D elements that appear 3-D due to two concentric layers of surrounding border. Should be used with ButtonText foreground color.",
+				"ThreeDHighlight":"The color of the lighter (generally outer) of the two borders facing the light source for 3-D elements that appear 3-D due to two concentric layers of surrounding border.",
+				"ThreeDLightShadow":"The color of the darker (generally inner) of the two borders facing the light source for 3-D elements that appear 3-D due to two concentric layers of surrounding border.",
+				"ThreeDShadow":"The color of the lighter (generally inner) of the two borders away from the light source for 3-D elements that appear 3-D due to two concentric layers of surrounding border.",
+				"Window":"Window background. Should be used with WindowText foreground color.",
+				"WindowFrame":"Window frame.",
+				"WindowText":"Text in windows. Should be used with Window background color.",
+				"-webkit-activelink":"",
+				"-webkit-focus-ring-color":"",
+				"-webkit-link":"",
+				"-webkit-text":"",
+				"-moz-ButtonDefault":"The border color that goes around buttons that represent the default action for a dialog box.",
+				"-moz-ButtonHoverFace":"The background color of a button that the mouse pointer is over (which would be ThreeDFace or ButtonFace when the mouse pointer is not over it). Should be used with the -moz-ButtonHoverText foreground color.",
+				"-moz-ButtonHoverText":"The text color of a button that the mouse pointer is over (which would be ButtonText when the mouse pointer is not over it). Should be used with the -moz-ButtonHoverFace background color.",
+				"-moz-CellHighlight":"Background color for selected item in a tree widget. Should be used with -moz-CellHighlightText foreground color. See also -moz-html-CellHighlight.",
+				"-moz-CellHighlightText":"Text color for a selected item in a tree. Should be used with -moz-CellHighlight background color. See also -moz-html-CellHighlightText.",
+				"-moz-Combobox":"Requires Gecko 1.9.2 Background color for comboboxes. Should be used with -moz-ComboboxText foreground color. In versions prior to 1.9.2, use -moz-Field instead.",
+				"-moz-ComboboxText;":"Requires Gecko 1.9.2 Background Text color for comboboxes. Should be used with -moz-ComboboxText foreground color. In versions prior to 1.9.2, use -moz-FieldText instead.",
+				"-moz-Dialog":"Background color for dialog boxes. Should be used with -moz-DialogText foreground color.",
+				"-moz-DialogText":"Text color for dialog boxes. Should be used with -moz-Dialog background color.",
+				"-moz-dragtargetzone":"",
+				"-moz-EvenTreeRow":"Requires Gecko 1.9 Background color for even-numbered rows in a tree. Should be used with -moz-FieldText foreground color. In Gecko versions prior to 1.9, use -moz-Field. See also -moz-OddTreeRow.",
+				"-moz-Field":"textfield background color. Should be used with -moz-FieldText foreground color.",
+				"-moz-FieldText":"textfield foreground color. Should be used with -moz-Field, -moz-EvenTreeRow, or -moz-OddTreeRow background colors.",
+				"-moz-html-CellHighlight":"Requires Gecko 1.9 Background color for highlighted item in HTML select. Should be used with -moz-html-CellHighlightText foreground color. Prior to Gecko 1.9, use -moz-CellHighlight.",
+				"-moz-html-CellHighlightText":"Requires Gecko 1.9 Background color for highlighted item in HTML select. Should be used with -moz-html-CellHighlight background color. Prior to Gecko 1.9, use -moz-CellHighlightText.",
+				"-moz-mac-accentdarkestshadow":"",
+				"-moz-mac-accentdarkshadow":"",
+				"-moz-mac-accentface":"",
+				"-moz-mac-accentlightesthighlight":"",
+				"-moz-mac-accentlightshadow":"",
+				"-moz-mac-accentregularhighlight":"",
+				"-moz-mac-accentregularshadow":"",
+				"-moz-mac-chrome-active":"Requires Gecko 1.9.1",
+				"-moz-mac-chrome-inactive":"Requires Gecko 1.9.1",
+				"-moz-mac-focusring":"",
+				"-moz-mac-menuselect":"",
+				"-moz-mac-menushadow":"",
+				"-moz-mac-menutextselect":"",
+				"-moz-MenuHover":"Background color for hovered menu item. Often similar to Highlight. Should be used with -moz-MenuHoverText or -moz-MenuBarHoverText foreground color.",
+				"-moz-MenuHoverText":"Foreground color for hovered menu item. Often similar to HighlightText. Should be used with -moz-MenuHover background color.",
+				"-moz-MenuBarText":"Requires Gecko 1.9.2 Foreground color for text in menu bars. Often similar to MenuText. Should be used on top of Menu background.",
+				"-moz-MenuBarHoverText":"Foreground color for hovered text in menu bars. Often similar to -moz-MenuHoverText. Should be used on top of -moz-MenuHover background.",
+				"-moz-nativehyperlinktext":"Requires Gecko 1.9.1 default platform hyperlink color",
+				"-moz-OddTreeRow":"Requires Gecko 1.9 Background color for odd-numbered rows in a tree. Should be used with -moz-FieldText foreground color. In Gecko versions prior to 1.9, use -moz-Field. See also -moz-EvenTreeRow.",
+				"-moz-win-communicationstext":"Requires Gecko 1.9 Should be used for text in objects with appearance:-moz-win-communications-toolbox.",
+				"-moz-win-mediatext":"Requires Gecko 1.9 Should be used for text in objects with appearance:-moz-win-media-toolbox.",
+				"-moz-activehyperlinktext":"User's preference for text color of active links. Should be used against default document background.",
+				"-moz-hyperlinktext":"User's preference for text color of unvisited links. Should be used against default document background.",
+				"-moz-visitedhyperlinktext":"User's preference for text color of visited links. Should be used against default document background."
+			}
+		</script>
+	</body>
+</html>

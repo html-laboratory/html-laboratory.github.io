@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Google Encrypter</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea{
+					box-sizing:border-box;
+					width:100%;
+				}
+				output{
+					white-space:pre;
+				}
+				body>section:first-of-type>div,output{
+					overflow-wrap:break-word;
+					word-wrap:break-word;
+				}
+				section>h2{
+					font-size:1.125em;
+				}
+			}
+			@media screen and (min-width:640px){
+				section:nth-of-type(2),section:nth-of-type(3){
+					box-sizing:border-box;
+					width:50%;
+					float:left;
+				}
+				section:nth-of-type(2){
+					padding-right:0.5em;
+				}
+				section:nth-of-type(3){
+					padding-left:0.5em;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<!--http://jp.techcrunch.com/archives/20090921google-is-searching-for-beautiful-minds-but-so-far-no-m-i-t-students-have-broken-its-code/-->
+		<section>
+			<h1>Example</h1>
+			<h2>Input</h2>
+			<div>Hello world!<br />Answer to life the universe and everything<br />CONGRATULATIONSKEEPSEARCHINGORCALL6176390570X10</div>
+			<h2>Output</h2>
+			<div>EAIIM WMQI9<br />6LRWAQ TM IFCA TEA ULFVAQRA 6L9 AVAQYTEFLD<br />8MLDQ6TUI6TFMLRHAANRA6Q8EFLDMQ86II2O32S5J13JXOJ</div>
+		</section>
+		<section>
+			<h1>Input</h1>
+			<form id="input">
+				<div><textarea id="sentence" rows="25" autofocus="autofocus" inputmode="latin"></textarea></div>
+				<div>
+					<input type="button" value="Encryption" />
+					<input type="button" value="Decryption" />
+				</div>
+			</form>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div><output id="result" form="input"></output></div>
+		</section>
+    <script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function switchWorking(elements){
+						elements.forEach(function(element){
+							element.disabled=!element.disabled;
+						});
+						elements[0].disabled?document.documentElement.style.cursor="wait":document.documentElement.style.removeProperty("cursor");
+					}
+					var buttons=Array.from(document.forms[0].querySelectorAll("[type=\"button\"]")),
+						worker=new Worker(URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"})));
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					buttons.forEach(function(element){
+						element.addEventListener("ontouchend" in window?"touchend":"click",function(e){
+							switchWorking(buttons);
+							worker.postMessage({
+								"sentence":document.getElementById("sentence").value,
+								"bool":({"Encryption":true,"Decryption":false})[e.target.value]
+							});
+						});
+					});
+					worker.addEventListener("message",function(e){
+						document.getElementById("result").value=e.data;
+						switchWorking(buttons);
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var char=["0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ","456789ABCDE2FGHIJKL0MNOP1QRS3TUVWXYZ"],
+						conv={},
+						bool=e.data.bool;
+					var i;
+					for(i=-1;char[0][++i];){
+						conv[char[bool-0].charAt(i)]=char[!bool-0].charAt(i);
+					}
+					postMessage(e.data.sentence.toLocaleUpperCase().replace(/[^\s\dA-Z]/g,"").replace(/\S/g,function(m){
+						return conv[m];
+					}));
+				});
+			}());
+		</script>
+	</body>
+</html>

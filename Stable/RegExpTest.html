@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Regular Expression Test</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="https://developer.mozilla.org" />
+		<link rel="dns-prefetch" href="https://msdn.microsoft.com" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea,[type="text"],[type="button"]{
+					box-sizing:border-box;
+					width:100%;
+				}
+				#string{
+					height:25em;
+				}
+				#replace{
+					height:5em;
+				}
+				label+[type="number"]{
+					margin-left:0.5em;
+				}
+				output{
+					white-space:pre;
+					overflow-wrap:break-word;
+					word-wrap:break-word;
+				}
+				#input::before,#result::before{
+					display:block;
+					content:attr(id);
+					text-transform:capitalize;
+					font-weight:bold;
+				}
+			}
+			@media screen and (min-width:640px){
+				section{
+					width:50%;
+					float:left;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<form id="input">
+				<fieldset>
+					<legend>String</legend>
+					<div>
+						<textarea id="string"></textarea>
+					</div>
+				</fieldset>
+				<fieldset>
+					<legend>Pattern</legend>
+					<div>
+						<input type="text" id="pattern" />
+					</div>
+					<div>
+						<label for="last_index">LastIndex</label><input type="number" value="0" min="0" id="last_index" />
+					</div>
+					<div id="flags">
+						<input type="checkbox" id="global" value="g" title="Global match" /><label for="global">g</label>
+						<input type="checkbox" id="ignore_case" value="i" title="Ignore case" /><label for="ignore_case">i</label>
+						<input type="checkbox" id="multiple" value="m" title="Match over multiple lines" /><label for="multiple">m</label>
+						<input type="checkbox" id="sticky" value="y" title="Sticky" /><label for="sticky">y</label>
+						<input type="checkbox" id="unicode" value="u" title="Unicode" /><label for="unicode">u</label>
+					</div>
+					<div>
+						<ul>
+							<li>
+								<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Regular_Expressions" rel="external">正規表現 - JavaScript | MDN</a>
+							</li>
+							<li>
+								<a href="https://msdn.microsoft.com/ja-jp/library/cc392020.aspx" rel="external">正規表現の構文 - MSDN - Microsoft</a>
+							</li>
+						</ul>
+					</div>
+				</fieldset>
+				<fieldset>
+					<legend>Replace</legend>
+					<div>
+						<input id="tab" type="button" value="Tab" />
+					</div>
+					<div>
+						<textarea id="replace"></textarea>
+					</div>
+				</fieldset>
+				<div>
+					<input id="execute" type="button" value="Execute" />
+				</div>
+			</form>
+		</section>
+		<section>
+			<output id="result" form="input"></output>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var replace=document.getElementById("replace"),
+						execute=document.getElementById("execute"),
+						supportEvent="ontouchend" in window?"touchend":"click",
+						event=new Event(supportEvent),
+						worker=new Worker(URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"}))),
+						supportFlags={ //iOS
+							"y":false,
+							"u":false
+						};
+					var i;
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					for(i in supportFlags){ //iOS
+						try{
+							supportFlags[i]=new RegExp("",i).test();
+						}catch(e){}
+						supportFlags[i]||(document.getElementById(({"y":"sticky","u":"unicode"})[i]).disabled=true);
+					}
+					Array.from(document.forms[0].querySelectorAll("[type=\"text\"],[type=\"checkbox\"]")).forEach(function(element){
+						element.addEventListener("keydown",function(e){
+							if(e.keyCode===13){
+								e.preventDefault();
+								execute.dispatchEvent(event);
+							}
+						});
+					});
+					function insertTab(e){
+						if(e.keyCode===9&&!(e.shiftKey||e.ctrlKey||e.altKey||e.metaKey)||e.type!=="keydown"){
+							if(replace.setRangeText){
+								replace.setRangeText("\t",replace.selectionStart,replace.selectionEnd,"end");
+							}else{ //Edge
+								var sS=replace.selectionStart,
+									sE=replace.selectionEnd;
+								replace.value=replace.value.substring(0,sS)+"\t"+replace.value.substr(sE);
+								replace.setSelectionRange(++sS,sS);
+							}
+							e.preventDefault();
+						}
+					}
+					document.getElementById("tab").addEventListener(supportEvent,insertTab);
+					replace.addEventListener("keydown",insertTab);
+					execute.addEventListener(supportEvent,function(e){
+						var lastIndex=document.getElementById("last_index");
+						var flags="";
+						document.documentElement.style.cursor="wait";
+						e.target.disabled=!e.target.disabled;
+						Array.from(document.getElementById("flags").querySelectorAll("input")).forEach(function(element){ //iOS
+							if(element.value in supportFlags){
+								flags+=["",element.value][(element.checked&&supportFlags[element.value])-0];
+							}else{
+								flags+=["",element.value][element.checked-0];
+							}
+						});
+						worker.postMessage({
+							"string":document.getElementById("string").value,
+							"pattern":document.getElementById("pattern").value,
+							"flags":flags,
+							"lastIndex":lastIndex.validity.valid?lastIndex.value|0:0,
+							"replace":replace.value
+						});
+					});
+					worker.addEventListener("message",function(e){
+						document.getElementById("result").value=e.data;
+						execute.disabled=!execute.disabled;
+						document.documentElement.style.removeProperty("cursor");
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var re=new RegExp(e.data.pattern,e.data.flags);
+					re.lastIndex=e.data.lastIndex;
+					postMessage(e.data.string.replace(re,e.data.replace));
+				});
+			}());
+		</script>
+	</body>
+</html>

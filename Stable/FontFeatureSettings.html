@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Font Feature Settings</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="https://helpx.adobe.com" />
+		<link rel="dns-prefetch" href="http://partners.adobe.com" />
+		<link rel="dns-prefetch" href="https://www.microsoft.com" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+					overflow:auto;
+					white-space:nowrap;
+					font-family:"游明朝体","Yu Mincho","YuMincho",serif;
+					/*font-family:"游ゴシック体","Yu Gothic","YuGothic",sans-serif;*/
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				table{
+					border-collapse:collapse;
+				}
+				tr>*{
+					border:#000 solid 1px;
+				}
+				td:nth-of-type(2){
+					background-color:#fcc;
+				}
+				td:nth-of-type(3){
+					background-color:#cfc;
+				}
+				td:nth-of-type(4){
+					background-color:#ccf;
+				}
+			}
+			@media all and (min-width:400px){
+				[role="textbox"]{
+					font-size:2em;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<dl>
+			<dt>Source</dt>
+			<dd>
+				<ul>
+					<li><a href="https://helpx.adobe.com/jp/typekit/using/open-type-syntax.html" rel="external">Typekit Help | CSS での OpenType 機能の構文</a></li>
+					<li><a href="http://partners.adobe.com/public/developer/opentype/index_tag3.html" rel="external">Developer Resources - Adobe</a></li>
+					<li><a href="https://www.microsoft.com/typography/otspec/featurelist.htm" rel="external">OpenType Layout tag registry - Microsoft</a></li>
+				</ul>
+			<dd>
+		</dl>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var blob=URL.createObjectURL(new Blob([document.querySelector('[type="text/js-worker"]').firstChild.nodeValue],{"type":"text/javascript"})),
+						worker=new Worker(blob);
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					worker.postMessage(JSON.parse(document.querySelector('[type="application/json"]').firstChild.nodeValue));
+					worker.addEventListener("message",function(e){
+						setTimeout(function(){
+							var data=e.data;
+							document.getElementsByTagName("style")[0].appendChild(document.createTextNode(data.style));
+							document.getElementsByTagName("header")[0].insertAdjacentHTML("AfterEnd",data.table);
+							document.body.querySelector("tbody").addEventListener("input",function(e){
+								var element=e.target;
+								var i,friend;
+								if(element.isContentEditable){
+									for(i=0;++i<4;){
+										friend=element.parentNode.children[i];
+										element===friend||(friend.hasChildNodes()?friend.replaceChild(document.createTextNode(element.textContent),friend.firstChild):friend.appendChild(document.createTextNode(element.textContent)));
+									}
+								}
+							});
+						},0);
+						e.target.terminate();
+						URL.revokeObjectURL(blob);
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var data=e.data,
+						off=[];
+					var style="@media all{",
+						table=["<table><thead><tr><th>Feature Tag","ON","OFF","Default",'Friendly Name</th></tr></thead><tbody spellcheck="false">'].join("</th><th>"),
+						i;
+					for(i in data){
+						style+=`#${i}{font-feature-settings:"${i}";}`;
+						off[off.length]=`"${i}" 0`;
+						table+=[`<tr><td>${i}`,` id="${i}">${data[i].example}`,`>${data[i].example}`,`>${data[i].example}</td><td>${data[i].friendlyName.english}${data[i].friendlyName.japanese?`（${data[i].friendlyName.japanese}）`:""}</td></tr>`].join(`</td><td contenteditable="true" role="textbox"`);
+					}
+					style+=`td:nth-of-type(3){font-feature-settings:${off.join(",")};}}`;
+					table+="</tbody></table>";
+					postMessage({
+						"style":style,
+						"table":table
+					});
+				});
+			}());
+		</script>
+		<script type="application/json">
+			{
+				"aalt":{
+					"example":"辺 祝 123",
+					"friendlyName":{
+						"english":"Access All Alternates",
+						"japanese":"全ての異体字"
+					}
+				},
+				"abvf":{
+					"example":"",
+					"friendlyName":{
+						"english":"Above-base Forms",
+						"japanese":""
+					}
+				},
+				"abvm":{
+					"example":"",
+					"friendlyName":{
+						"english":"Above-base Mark Positioning",
+						"japanese":""
+					}
+				},
+				"abvs":{
+					"example":"",
+					"friendlyName":{
+						"english":"Above-base Substitutions",
+						"japanese":""
+					}
+				},
+				"afrc":{
+					"example":"1/3 11/12",
+					"friendlyName":{
+						"english":"Alternative Fractions",
+						"japanese":"分数の代替"
+					}
+				},
+				"akhn":{
+					"example":"",
+					"friendlyName":{
+						"english":"Akhands",
+						"japanese":""
+					}
+				},
+				"blwf":{
+					"example":"",
+					"friendlyName":{
+						"english":"Below-base Forms",
+						"japanese":""
+					}
+				},
+				"blwm":{
+					"example":"",
+					"friendlyName":{
+						"english":"Below-base Mark Positioning",
+						"japanese":""
+					}
+				},
+				"blws":{
+					"example":"",
+					"friendlyName":{
+						"english":"Below-base Substitutions",
+						"japanese":""
+					}
+				},
+				"calt":{
+					"example":"bloom gone rose",
+					"friendlyName":{
+						"english":"Contextual Alternates",
+						"japanese":"前後関係に依存する字形"
+					}
+				},
+				"case":{
+					"example":"",
+					"friendlyName":{
+						"english":"Case-Sensitive Forms",
+						"japanese":""
+					}
+				},
+				"ccmp":{
+					"example":"あ゛",
+					"friendlyName":{
+						"english":"Glyph Composition / Decomposition",
+						"japanese":"字体組版/分解"
+					}
+				},
+				"cfar":{
+					"example":"",
+					"friendlyName":{
+						"english":"Conjunct Form After Ro",
+						"japanese":""
+					}
+				},
+				"cjct":{
+					"example":"",
+					"friendlyName":{
+						"english":"Conjunct Forms",
+						"japanese":""
+					}
+				},
+				"clig":{
+					"example":"",
+					"friendlyName":{
+						"english":"Contextual Ligatures",
+						"japanese":""
+					}
+				},
+				"cpct":{
+					"example":"",
+					"friendlyName":{
+						"english":"Capital Spacing",
+						"japanese":""
+					}
+				},
+				"cpsp":{
+					"example":"",
+					"friendlyName":{
+						"english":"Capital Spacing",
+						"japanese":""
+					}
+				},
+				"cswh":{
+					"example":"",
+					"friendlyName":{
+						"english":"Contextual Swash",
+						"japanese":""
+					}
+				},
+				"curs":{
+					"example":"",
+					"friendlyName":{
+						"english":"Cursive Positioning",
+						"japanese":""
+					}
+				},
+				"cv01":{
+					"example":"",
+					"friendlyName":{
+						"english":"Character Variants",
+						"japanese":""
+					}
+				},
+				"c2pc":{
+					"example":"",
+					"friendlyName":{
+						"english":"Petite Capitals From Capitals",
+						"japanese":""
+					}
+				},
+				"c2sc":{
+					"example":"SMALL CAPS",
+					"friendlyName":{
+						"english":"Small Capitals From Capitals",
+						"japanese":"大文字のスモールキャップス"
+					}
+				},
+				"dist":{
+					"example":"",
+					"friendlyName":{
+						"english":"Distances",
+						"japanese":""
+					}
+				},
+				"dlig":{
+					"example":"JIS センチ !? ppm",
+					"friendlyName":{
+						"english":"Discretionary Ligatures",
+						"japanese":"任意の合字"
+					}
+				},
+				"dnom":{
+					"example":"2 4 10 100",
+					"friendlyName":{
+						"english":"Denominators",
+						"japanese":"分母"
+					}
+				},
+				"dtls":{
+					"example":"",
+					"friendlyName":{
+						"english":"Dotless Forms",
+						"japanese":""
+					}
+				},
+				"expt":{
+					"example":"唖 鴎",
+					"friendlyName":{
+						"english":"Expert Forms",
+						"japanese":"エキスパート字形"
+					}
+				},
+				"falt":{
+					"example":"",
+					"friendlyName":{
+						"english":"Final Glyph on Line Alternates",
+						"japanese":""
+					}
+				},
+				"fin2":{
+					"example":"",
+					"friendlyName":{
+						"english":"Terminal Forms #2",
+						"japanese":""
+					}
+				},
+				"fin3":{
+					"example":"",
+					"friendlyName":{
+						"english":"Terminal Forms #3",
+						"japanese":""
+					}
+				},
+				"fina":{
+					"example":"",
+					"friendlyName":{
+						"english":"Terminal Forms",
+						"japanese":""
+					}
+				},
+				"flac":{
+					"example":"",
+					"friendlyName":{
+						"english":"Flattened accent forms",
+						"japanese":""
+					}
+				},
+				"frac":{
+					"example":"1/3 11/12",
+					"friendlyName":{
+						"english":"Fractions",
+						"japanese":"スラッシュを用いた分数"
+					}
+				},
+				"fwid":{
+					"example":"永あｱA?",
+					"friendlyName":{
+						"english":"Full Widths",
+						"japanese":"全角"
+					}
+				},
+				"half":{
+					"example":"",
+					"friendlyName":{
+						"english":"Half Forms",
+						"japanese":""
+					}
+				},
+				"haln":{
+					"example":"",
+					"friendlyName":{
+						"english":"Halant Forms",
+						"japanese":""
+					}
+				},
+				"halt":{
+					"example":"、『』？",
+					"friendlyName":{
+						"english":"Alternate Half Widths",
+						"japanese":"字幅半角メトリクス"
+					}
+				},
+				"hist":{
+					"example":"",
+					"friendlyName":{
+						"english":"Historical Forms",
+						"japanese":""
+					}
+				},
+				"hkna":{
+					"example":"いきとおかし",
+					"friendlyName":{
+						"english":"Horizontal Kana Alternates",
+						"japanese":"横組み用かな"
+					}
+				},
+				"hlig":{
+					"example":"",
+					"friendlyName":{
+						"english":"Historical Ligatures",
+						"japanese":""
+					}
+				},
+				"hngl":{
+					"example":"",
+					"friendlyName":{
+						"english":"Hangul",
+						"japanese":""
+					}
+				},
+				"hojo":{
+					"example":"瘦 瑢",
+					"friendlyName":{
+						"english":"Hojo Kanji Forms",
+						"japanese":"補助漢字"
+					}
+				},
+				"hwid":{
+					"example":"永あアＡ？",
+					"friendlyName":{
+						"english":"Half Widths",
+						"japanese":"半角"
+					}
+				},
+				"init":{
+					"example":"",
+					"friendlyName":{
+						"english":"Initial Forms",
+						"japanese":""
+					}
+				},
+				"isol":{
+					"example":"",
+					"friendlyName":{
+						"english":"Isolated Forms",
+						"japanese":""
+					}
+				},
+				"ital":{
+					"example":"Italic",
+					"friendlyName":{
+						"english":"Italics",
+						"japanese":"欧文イタリック"
+					}
+				},
+				"jalt":{
+					"example":"",
+					"friendlyName":{
+						"english":"Justification Alternates",
+						"japanese":""
+					}
+				},
+				"jp04":{
+					"example":"飴 公 噂 屡",
+					"friendlyName":{
+						"english":"JIS2004 Forms",
+						"japanese":"JIS2004字形"
+					}
+				},
+				"jp78":{
+					"example":"飴 公 噂 屡",
+					"friendlyName":{
+						"english":"JIS78 Forms",
+						"japanese":"JIS78字形"
+					}
+				},
+				"jp83":{
+					"example":"飴 公 噂 屡",
+					"friendlyName":{
+						"english":"JIS83 Forms",
+						"japanese":"JIS83字形"
+					}
+				},
+				"jp90":{
+					"example":"飴 公 噂 屡",
+					"friendlyName":{
+						"english":"JIS90 Forms",
+						"japanese":"JIS90字形"
+					}
+				},
+				"kern":{
+					"example":"Try As You Will",
+					"friendlyName":{
+						"english":"Kerning",
+						"japanese":"カーニング"
+					}
+				},
+				"lfbd":{
+					"example":"",
+					"friendlyName":{
+						"english":"Left Bounds",
+						"japanese":""
+					}
+				},
+				"liga":{
+					"example":"fi fl ff Th",
+					"friendlyName":{
+						"english":"Standard Ligatures",
+						"japanese":"一般的な合字/標準合字"
+					}
+				},
+				"ljmo":{
+					"example":"",
+					"friendlyName":{
+						"english":"Leading Jamo Forms",
+						"japanese":""
+					}
+				},
+				"lnum":{
+					"example":"123456",
+					"friendlyName":{
+						"english":"Lining Figures",
+						"japanese":"ライニング数字"
+					}
+				},
+				"locl":{
+					"example":"Iıİi",
+					"friendlyName":{
+						"english":"Localized Forms",
+						"japanese":"ローカライズの字形"
+					}
+				},
+				"ltra":{
+					"example":"",
+					"friendlyName":{
+						"english":"Left-to-right alternates",
+						"japanese":""
+					}
+				},
+				"ltrm":{
+					"example":"",
+					"friendlyName":{
+						"english":"Left-to-right mirrored forms",
+						"japanese":""
+					}
+				},
+				"mark":{
+					"example":"",
+					"friendlyName":{
+						"english":"Mark Positioning",
+						"japanese":""
+					}
+				},
+				"med2":{
+					"example":"",
+					"friendlyName":{
+						"english":"Medial Forms #2",
+						"japanese":""
+					}
+				},
+				"medi":{
+					"example":"",
+					"friendlyName":{
+						"english":"Medial Forms",
+						"japanese":""
+					}
+				},
+				"mgrk":{
+					"example":"",
+					"friendlyName":{
+						"english":"Mathematical Greek",
+						"japanese":""
+					}
+				},
+				"mkmk":{
+					"example":"",
+					"friendlyName":{
+						"english":"Mark to Mark Positioning",
+						"japanese":""
+					}
+				},
+				"mset":{
+					"example":"",
+					"friendlyName":{
+						"english":"Mark Positioning via Substitution",
+						"japanese":""
+					}
+				},
+				"nalt":{
+					"example":"あ 祝 〒 株",
+					"friendlyName":{
+						"english":"Alternate Annotation Forms",
+						"japanese":"修飾字形"
+					}
+				},
+				"nlck":{
+					"example":"飴 公 噂 屡",
+					"friendlyName":{
+						"english":"NLC Kanji Forms",
+						"japanese":"印刷標準字体"
+					}
+				},
+				"nukt":{
+					"example":"",
+					"friendlyName":{
+						"english":"Nukta Forms",
+						"japanese":""
+					}
+				},
+				"numr":{
+					"example":"3 7 11",
+					"friendlyName":{
+						"english":"Numerators",
+						"japanese":"分子"
+					}
+				},
+				"onum":{
+					"example":"123456",
+					"friendlyName":{
+						"english":"Oldstyle Figures",
+						"japanese":"オールドスタイル数字"
+					}
+				},
+				"opbd":{
+					"example":"",
+					"friendlyName":{
+						"english":"Optical Bounds",
+						"japanese":""
+					}
+				},
+				"ordn":{
+					"example":"1st 2nd 3rd",
+					"friendlyName":{
+						"english":"Ordinals",
+						"japanese":"上付き序数表記"
+					}
+				},
+				"ornm":{
+					"example":"",
+					"friendlyName":{
+						"english":"Ornaments",
+						"japanese":""
+					}
+				},
+				"palt":{
+					"example":"、。？",
+					"friendlyName":{
+						"english":"Proportional Alternate Widths",
+						"japanese":"プロポーショナルメトリクス"
+					}
+				},
+				"pcap":{
+					"example":"",
+					"friendlyName":{
+						"english":"Petite Capitals",
+						"japanese":""
+					}
+				},
+				"pkna":{
+					"example":"いろは",
+					"friendlyName":{
+						"english":"Proportional Kana",
+						"japanese":"プロポーショナルかな"
+					}
+				},
+				"pnum":{
+					"example":"123456",
+					"friendlyName":{
+						"english":"Proportional Figures",
+						"japanese":"プロポーショナル数字"
+					}
+				},
+				"pref":{
+					"example":"",
+					"friendlyName":{
+						"english":"Pre-Base Forms",
+						"japanese":""
+					}
+				},
+				"pres":{
+					"example":"",
+					"friendlyName":{
+						"english":"Pre-Base Substitutions",
+						"japanese":""
+					}
+				},
+				"pstf":{
+					"example":"",
+					"friendlyName":{
+						"english":"Post-base Forms",
+						"japanese":""
+					}
+				},
+				"psts":{
+					"example":"",
+					"friendlyName":{
+						"english":"Post-base Substitutions",
+						"japanese":""
+					}
+				},
+				"pwid":{
+					"example":"きょう、本を買った。",
+					"friendlyName":{
+						"english":"Proportional Widths",
+						"japanese":"プロポーショナル字形"
+					}
+				},
+				"qwid":{
+					"example":"123456",
+					"friendlyName":{
+						"english":"Quarter Widths",
+						"japanese":"等幅四分字形"
+					}
+				},
+				"rand":{
+					"example":"",
+					"friendlyName":{
+						"english":"Randomize",
+						"japanese":""
+					}
+				},
+				"rclt":{
+					"example":"",
+					"friendlyName":{
+						"english":"Required Contextual Alternates",
+						"japanese":""
+					}
+				},
+				"rkrf":{
+					"example":"",
+					"friendlyName":{
+						"english":"Rakar Forms",
+						"japanese":""
+					}
+				},
+				"rlig":{
+					"example":"",
+					"friendlyName":{
+						"english":"Required Ligatures",
+						"japanese":""
+					}
+				},
+				"rphf":{
+					"example":"",
+					"friendlyName":{
+						"english":"Reph Forms",
+						"japanese":""
+					}
+				},
+				"rtbd":{
+					"example":"",
+					"friendlyName":{
+						"english":"Right Bounds",
+						"japanese":""
+					}
+				},
+				"rtla":{
+					"example":"",
+					"friendlyName":{
+						"english":"Right-to-left Alternates",
+						"japanese":""
+					}
+				},
+				"rtlm":{
+					"example":"",
+					"friendlyName":{
+						"english":"Right-to-left mirrored forms",
+						"japanese":""
+					}
+				},
+				"ruby":{
+					"example":"かんじ",
+					"friendlyName":{
+						"english":"Ruby Notation Forms",
+						"japanese":"ルビ用字形"
+					}
+				},
+				"salt":{
+					"example":"aegyz",
+					"friendlyName":{
+						"english":"Stylistic Alternates",
+						"japanese":"デザインのバリエーション"
+					}
+				},
+				"sinf":{
+					"example":"1 2 3",
+					"friendlyName":{
+						"english":"Scientific Inferiors",
+						"japanese":"下付き用数字"
+					}
+				},
+				"size":{
+					"example":"",
+					"friendlyName":{
+						"english":"Optical size",
+						"japanese":""
+					}
+				},
+				"smcp":{
+					"example":"small caps",
+					"friendlyName":{
+						"english":"Small Capitals",
+						"japanese":"スモールキャップス"
+					}
+				},
+				"smpl":{
+					"example":"",
+					"friendlyName":{
+						"english":"Simplified Forms",
+						"japanese":""
+					}
+				},
+				"ss01":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 1",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss02":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 2",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss03":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 3",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss04":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 4",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss05":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 5",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss06":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 6",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss07":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 7",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss08":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 8",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss09":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 9",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss10":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 10",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss11":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 11",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss12":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 12",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss13":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 13",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss14":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 14",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss15":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 15",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss16":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 16",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss17":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 17",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss18":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 18",
+						"japanese":""
+					}
+				},
+				"ss19":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 19",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ss20":{
+					"example":"ag&amp;",
+					"friendlyName":{
+						"english":"Stylistic Set 20",
+						"japanese":"デザインのセット"
+					}
+				},
+				"ssty":{
+					"example":"",
+					"friendlyName":{
+						"english":"Math script style alternates",
+						"japanese":""
+					}
+				},
+				"stch":{
+					"example":"",
+					"friendlyName":{
+						"english":"Stretching Glyph Decomposition",
+						"japanese":""
+					}
+				},
+				"subs":{
+					"example":"1 2 3",
+					"friendlyName":{
+						"english":"Subscript",
+						"japanese":"下付き文字"
+					}
+				},
+				"sups":{
+					"example":"1 2 3",
+					"friendlyName":{
+						"english":"Superscript",
+						"japanese":"上付き用数字"
+					}
+				},
+				"swsh":{
+					"example":"Tred And Ginger",
+					"friendlyName":{
+						"english":"Swash",
+						"japanese":"スワッシュ字形"
+					}
+				},
+				"titl":{
+					"example":"",
+					"friendlyName":{
+						"english":"Titling",
+						"japanese":""
+					}
+				},
+				"tjmo":{
+					"example":"",
+					"friendlyName":{
+						"english":"Trailing Jamo Forms",
+						"japanese":""
+					}
+				},
+				"tnam":{
+					"example":"",
+					"friendlyName":{
+						"english":"Traditional Name Forms",
+						"japanese":""
+					}
+				},
+				"tnum":{
+					"example":"123456",
+					"friendlyName":{
+						"english":"Tabular Figures",
+						"japanese":"等幅数字"
+					}
+				},
+				"trad":{
+					"example":"学 国 台",
+					"friendlyName":{
+						"english":"Traditional Forms",
+						"japanese":"旧字体"
+					}
+				},
+				"twid":{
+					"example":"123456",
+					"friendlyName":{
+						"english":"Third Widths",
+						"japanese":"等幅三分字形"
+					}
+				},
+				"unic":{
+					"example":"",
+					"friendlyName":{
+						"english":"Unicase",
+						"japanese":""
+					}
+				},
+				"valt":{
+					"example":"",
+					"friendlyName":{
+						"english":"Alternate Vertical Metrics",
+						"japanese":""
+					}
+				},
+				"vatu":{
+					"example":"",
+					"friendlyName":{
+						"english":"Vattu Variants",
+						"japanese":""
+					}
+				},
+				"vert":{
+					"example":"「あー。」",
+					"friendlyName":{
+						"english":"Vertical Writing",
+						"japanese":"縦組み用字形"
+					}
+				},
+				"vhal":{
+					"example":"いろはABC",
+					"friendlyName":{
+						"english":"Alternate Vertical Half Metrics",
+						"japanese":"縦組み字幅半角メトリクス"
+					}
+				},
+				"vjmo":{
+					"example":"",
+					"friendlyName":{
+						"english":"Vowel Jamo Forms",
+						"japanese":""
+					}
+				},
+				"vkna":{
+					"example":"いきとおかし",
+					"friendlyName":{
+						"english":"Vertical Kana Alternates",
+						"japanese":"縦組み用かな"
+					}
+				},
+				"vkrn":{
+					"example":"Windows",
+					"friendlyName":{
+						"english":"Vertical Kerning",
+						"japanese":"縦組みペアカーニング"
+					}
+				},
+				"vpal":{
+					"example":"いろはABC",
+					"friendlyName":{
+						"english":"Proportional Alternate Vertical Metrics",
+						"japanese":"縦組みプロポーショナルメトリクス"
+					}
+				},
+				"vrt2":{
+					"example":"Aa!?",
+					"friendlyName":{
+						"english":"Vertical Alternates and Rotation",
+						"japanese":"縦組み用回転字形"
+					}
+				},
+				"zero":{
+					"example":"1080",
+					"friendlyName":{
+						"english":"Slashed Zero",
+						"japanese":"スラッシュ付きゼロ"
+					}
+				}
+			}
+		</script>
+	</body>
+</html>

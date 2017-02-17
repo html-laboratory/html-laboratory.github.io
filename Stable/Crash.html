@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Crash</title>
+	</head>
+	<body>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					if(confirm("Are you ready?")){
+						var template={"canvas":document.createElement("canvas")},
+							loop=32,
+							interval=setInterval(function(){
+								var canvas=template.canvas.cloneNode(),
+									width=document.body.clientWidth;
+								var i;
+								canvas.width=width;
+								canvas.height=innerHeight;
+								var ctx=canvas.getContext("2d");
+								ctx.beginPath();
+								var gradient=Math.floor(Math.random()*2)?ctx.createLinearGradient(0,0,width,0):ctx.createLinearGradient(0,0,0,innerHeight),
+									colors=Math.floor(Math.random()*2)?2:6;
+								for(i=0;i<colors;i++){
+									colors===2&&gradient.addColorStop(i,"rgb("+i*256+","+i*256+","+i*256+")");
+									colors===6&&gradient.addColorStop(i/(colors-1),"hsl("+i*(360/colors)+",100%,50%)");
+								}
+								ctx.fillStyle=gradient;
+								ctx.rect(0,0,width,innerHeight);
+								ctx.fill();
+								document.body.appendChild(canvas);
+								//--loop<1&&clearInterval(interval);
+							},1/30*1000);
+					}
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Similar growls of Pokémon</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1"/>
+		<meta name="referrer" content="never"/>
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				tbody{
+					display:flex;
+					flex-flow:column wrap;
+					align-content:flex-start;
+				}
+				a>img{
+					background-color:#CCC;
+					min-width:40px;
+					min-height:40px;
+				}
+				img{
+					image-rendering:-webkit-crisp-edges;
+					image-rendering:-moz-crisp-edges;
+					image-rendering:crisp-edges;
+					image-rendering:pixelated;
+				}
+			}
+			@media screen{
+				body>img:last-child,canvas{
+					animation:fade-out 15s ease-in;
+					opacity:0;
+					transform:rotateY(180deg);
+					position:fixed;
+					bottom:0;
+					right:0;
+					z-index:-1;
+				}
+				/*
+					body>img:last-child{
+						background-position:left bottom;
+						background-repeat:no-repeat;
+						background-attachment:fixed;
+						width:100%;
+						height:100%;
+					}
+				*/
+
+			}
+			@keyframes fade-out{
+				0%{
+					opacity:.1;
+				}
+				100%{
+					opacity:0;
+				}
+			}
+			@media screen and (orientation:landscape){
+				body>img:last-child{
+					/*background-size:auto 100%;*/
+					height:100%;
+				}
+			}
+			@media screen and (orientation:portrait){
+				body>img:last-child{
+					/*background-size:100%;*/
+					width:100%;
+				}
+			}
+			@media screen and (max-width:400px){
+				tbody{
+					height:calc(100vh - 128px);
+				}
+			}
+			@media screen and (min-width:401px){
+				tbody{
+					height:calc(100vh - 96px);
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<!--
+			http://www.pokemon.jp/special/nakigoe151/
+			http://www.pokemon.jp/special/nakigoe151/sound/m/[001-151].mp3
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_challenge_1366x768.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_challenge_1920x1080.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_easy_1366x768.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_easy_1920x1080.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_normal_1366x768.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_normal_1920x1080.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_hard_1366x768.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_hard_1920x1080.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_challenge_1440x1280.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_challenge_640x1136.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_easy_1440x1280.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_easy_640x1136.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_normal_1440x1280.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_normal_640x1136.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_hard_1440x1280.jpg
+			http://www.pokemon.jp/special/nakigoe151/images/prize/wallpaper_hard_640x1136.jpg
+			http://www.spriters-resource.com/
+			http://veekun.com/dex/downloads
+		-->
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var blob=URL.createObjectURL(new Blob([document.querySelector('[type="text/js-worker"]').firstChild.nodeValue],{"type":"text/javascript"})),
+						worker=new Worker(blob),
+						img=document.createElement("img"),
+						onLoadWebP=function(e){
+							var target=e.target;
+							target.removeEventListener("load",onLoadWebP);
+							target.removeEventListener("error",onLoadWebP);
+							var extension=["png","webp"][({
+								"load":true,
+								"error":false
+							})[e.type]-0];
+							worker.postMessage({
+								"list":document.querySelector('[type="application/json"]').firstChild.nodeValue,
+								"type":location.search==="?all"?"all":"similarGrowls",
+								"language":navigator.language.substr(0,2),
+								"extension":extension
+							});
+							if(!(Math.random()*6|0)){
+								img.addEventListener("load",function onLoadImg(e){
+									var output;
+									if(CSS.supports("(image-rendering:-webkit-crisp-edges) or (image-rendering:-moz-crisp-edges) or (image-rendering:crisp-edges) or (image-rendering:pixelated)")){
+										output=e.target;
+									}else{
+										var canvas=document.createElement("canvas"),
+											ctx=canvas.getContext("2d"),
+											scale=innerHeight<innerWidth?innerHeight:innerWidth;
+										output=canvas;
+										canvas.width=scale;
+										canvas.height=scale;
+										ctx.mozImageSmoothingEnabled=false;
+										ctx.webkitImageSmoothingEnabled=false;
+										ctx.msImageSmoothingEnabled=false;
+										ctx.imageSmoothingEnabled=false;
+										ctx.drawImage(img,0,0,scale,scale);
+									}
+									output.style.willChange="opacity";
+									document.body.appendChild(output).addEventListener("animationend",function onAnimationEndFadeOut(e){
+										this.parentNode.removeChild(this);
+										this.removeEventListener(e.type,onAnimationEndFadeOut);
+										img=null;
+									});
+									e.target.removeEventListener("load",onLoadImg);
+								});
+								img.src="./sprite/\x47\x6f\x6c\x62\x61\x74."+extension;
+							}
+						};
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					worker.addEventListener("message",function(e){
+						var data=e.data,
+							audioMap=new WeakMap(),
+							play=function(e){
+								var target=e.target;
+								target=({
+										"click":target,
+										"keypress":target.firstChild
+									})[e.type];
+								if(target.tagName==="IMG"){
+									e.preventDefault();
+									playing&&playing.pause();
+									audioMap.get(target).play();
+								}
+							},
+							onplay=function(e){
+								playing=e.target;
+							},
+							onpause=function(e){
+								e.target.currentTime=0;
+								playing=null;
+							},
+							template={
+								"audio":document.createElement("audio")
+							};
+						var playing,audio,i;
+						document.head.insertAdjacentHTML("BeforeEnd",data.preload);
+						document.getElementsByTagName("header")[0].insertAdjacentHTML("AfterEnd",data.table);
+						var tbody=document.body.querySelector("tbody"),
+							imgs=tbody.querySelectorAll("img");
+						template.audio.preload="auto";
+						for(i=imgs.length;i--;){
+							audio=template.audio.cloneNode();
+							audio.src=imgs[i].parentNode.href;
+							audioMap.set(imgs[i],audio);
+							audio.addEventListener("play",onplay);
+							audio.addEventListener("pause",onpause);
+						}
+						tbody.addEventListener("click",play);
+						tbody.addEventListener("keypress",play);
+						e.target.terminate();
+						URL.revokeObjectURL(blob);
+					});
+					img.addEventListener("load",onLoadWebP);
+					img.addEventListener("error",onLoadWebP);
+					img.src="data:image/webp;base64,UklGRhoAAABXRUJQVlA4TA4AAAAvAAAAAAcQEf0PRET/Aw==";
+					e.target.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var data=e.data,
+						list=JSON.parse(data.list)[data.type],
+						language=data.language,
+						extension=data.extension,
+						color=["gray","gbc","sfc"][Math.random()*3|0];
+					var table="<table><tbody>",
+						links="",
+						maxCols=0,
+						cols,i,j;
+					for(i=list.length;i--;){
+						cols=0;
+						for(j in list[i]){
+							cols++;
+						}
+						maxCols<cols&&(maxCols=cols);
+					}
+					for(i=-1;++i<list.length;){
+						table+="<tr>";
+						cols=maxCols;
+						for(j in list[i]){
+							links+=`<link rel="preload" as="image" href="./sprite/${color}/${j}.${extension}" /><link rel="preload" as="media" href="./sound/${j}.mp3" />`;
+							table+=`<td><a href="./sound/${j}.mp3"><img src="./sprite/${color}/${j}.${extension}" alt="${list[i][j][language]||list[i][j]["en"]}" /></a></td>`;
+							cols--;
+						}
+						while(cols-->0){
+							table+="<td></td>";
+						}
+						table+="</tr>";
+					}
+					table+="</tbody></table>";
+					postMessage({
+						"preload":links,
+						"table":table
+					});
+				});
+			}());
+		</script>
+		<script type="application/json">
+			{
+				"similarGrowls":[
+					{"003":{"ja":"フシギバナ","en":"Venusaur"},"149":{"ja":"カイリュー","en":"Dragonite"}},
+					{"006":{"ja":"リザードン","en":"Charizard"},"111":{"ja":"サイホーン","en":"Rhyhorn"}},
+					{"007":{"ja":"ゼニガメ","en":"Squirtle"},"008":{"ja":"カメール","en":"Wartortle"},"128":{"ja":"ケンタロス","en":"Tauros"}},
+					{"010":{"ja":"キャタピー","en":"Caterpie"},"118":{"ja":"トサキント","en":"Goldeen"}},
+					{"011":{"ja":"トランセル","en":"Metapod"},"063":{"ja":"ケーシィ","en":"Abra"}},
+					{"014":{"ja":"コクーン","en":"Kakuna"},"009":{"ja":"カメックス","en":"Blastoise"}},
+					{"018":{"ja":"ピジョット","en":"Pidgeot"},"113":{"ja":"ラッキー","en":"Chansey"}},
+					{"022":{"ja":"オニドリル","en":"Fearow"},"091":{"ja":"パルシェン","en":"Cloyster"}},
+					{"023":{"ja":"アーボ","en":"Ekans"},"130":{"ja":"ギャラドス","en":"Gyarados"}},
+					{"040":{"ja":"プクリン","en":"Wigglytuff"},"061":{"ja":"ニョロゾ","en":"Poliwhirl"}},
+					{"044":{"ja":"クサイハナ","en":"Gloom"},"105":{"ja":"ガラガラ","en":"Marowak"}},
+					{"045":{"ja":"ラフレシア","en":"Vileplume"},"142":{"ja":"プテラ","en":"Aerodactyl"}},
+					{"047":{"ja":"パラセクト","en":"Parasect"},"150":{"ja":"ミュウツー","en":"Mewtwo"}},
+					{"048":{"ja":"コンパン","en":"Venonat"},"049":{"ja":"モルフォン","en":"Venomoth"},"135":{"ja":"サンダース","en":"Jolteon"}},
+					{"050":{"ja":"ディグダ","en":"Diglett"},"084":{"ja":"ドードー","en":"Doduo"}},
+					{"053":{"ja":"ペルシアン","en":"Persian"},"116":{"ja":"タッツー","en":"Horsea"}},
+					{"058":{"ja":"ガーディ","en":"Growlithe"},"067":{"ja":"ゴーリキー","en":"Machoke"}},
+					{"060":{"ja":"ニョロモ","en":"Poliwag"},"132":{"ja":"メタモン","en":"Ditto"}},
+					{"066":{"ja":"ワンリキー","en":"Machop"},"138":{"ja":"オムナイト","en":"Omanyte"}},
+					{"068":{"ja":"カイリキー","en":"Machamp"},"080":{"ja":"ヤドラン","en":"Slowbro"}},
+					{"071":{"ja":"ウツボット","en":"Victreebel"},"137":{"ja":"ポリゴン","en":"Porygon"}},
+					{"086":{"ja":"パウワウ","en":"Seel"},"107":{"ja":"エビワラー","en":"Hitmonchan"}},
+					{"087":{"ja":"ジュゴン","en":"Dewgong"},"108":{"ja":"ベロリンガ","en":"Lickitung"}},
+					{"119":{"ja":"アズマオウ","en":"Seaking"},"123":{"ja":"ストライク","en":"Scyther"}}
+				],
+				"all":[
+					{"001":{"ja":"フシギダネ","en":"Bulbasaur"},"002":{"ja":"フシギソウ","en":"Ivysaur"},"003":{"ja":"フシギバナ","en":"Venusaur"}},
+					{"004":{"ja":"ヒトカゲ","en":"Bulbasaur"},"005":{"ja":"リザード","en":"Ivysaur"},"006":{"ja":"リザードン","en":"Venusaur"}},
+					{"007":{"ja":"ゼニガメ","en":"Squirtle"},"008":{"ja":"カメール","en":"Wartortle"},"009":{"ja":"カメックス","en":"Blastoise"}},
+					{"010":{"ja":"キャタピー","en":"Caterpie"},"011":{"ja":"トランセル","en":"Metapod"},"012":{"ja":"バタフリー","en":"Butterfree"}},
+					{"013":{"ja":"ビードル","en":"Weedle"},"014":{"ja":"コクーン","en":"Kakuna"},"015":{"ja":"スピアー","en":"Beedrill"}},
+					{"016":{"ja":"ポッポ","en":"Pidgey"},"017":{"ja":"ピジョン","en":"Pidgeotto"},"018":{"ja":"ピジョット","en":"Pidgeot"}},
+					{"019":{"ja":"コラッタ","en":"Rattata"},"020":{"ja":"ラッタ","en":"Raticate"}},
+					{"021":{"ja":"オニスズメ","en":"Spearow"},"022":{"ja":"オニドリル","en":"Fearow"}},
+					{"023":{"ja":"ピカチュウ","en":"Ekans"},"024":{"ja":"アーボック","en":"Arbok"}},
+					{"025":{"ja":"アーボ","en":"Pikachu"},"026":{"ja":"ライチュウ","en":"Raichu"}},
+					{"027":{"ja":"サンド","en":"Sandshrew"},"028":{"ja":"サンドパン","en":"Sandslash"}},
+					{"029":{"ja":"ニドラン♀","en":"Nidoran♀"},"030":{"ja":"ニドリーナ","en":"Nidorina"},"031":{"ja":"ニドクイン","en":"Nidoqueen"}},
+					{"032":{"ja":"ニドラン♂","en":"Nidoran♂"},"033":{"ja":"ニドリーノ","en":"Nidorino"},"034":{"ja":"ニドキング","en":"Nidoking"}},
+					{"035":{"ja":"ピッピ","en":"Clefairy"},"036":{"ja":"ピクシー","en":"Clefable"}},
+					{"037":{"ja":"ロコン","en":"Vulpix"},"038":{"ja":"キュウコン","en":"Ninetales"}},
+					{"039":{"ja":"プリン","en":"Jigglypuff"},"040":{"ja":"プクリン","en":"Wigglytuff"}},
+					{"041":{"ja":"ズバット","en":"Zubat"},"042":{"ja":"ゴルバット","en":"Golbat"}},
+					{"043":{"ja":"ナゾノクサ","en":"Oddish"},"044":{"ja":"クサイハナ","en":"Gloom"},"045":{"ja":"ラフレシア","en":"Vileplume"}},
+					{"046":{"ja":"パラス","en":"Paras"},"047":{"ja":"パラセクト","en":"Parasect"}},
+					{"048":{"ja":"コンパン","en":"Venonat"},"049":{"ja":"モルフォン","en":"Venomoth"}},
+					{"050":{"ja":"ディグダ","en":"Diglett"},"051":{"ja":"ダグトリオ","en":"Dugtrio"}},
+					{"052":{"ja":"ニャース","en":"Meowth"},"053":{"ja":"ペルシアン","en":"Persian"}},
+					{"054":{"ja":"コダック","en":"Psyduck"},"055":{"ja":"ゴルダック","en":"Golduck"}},
+					{"056":{"ja":"マンキー","en":"Mankey"},"057":{"ja":"オコリザル","en":"Primeape"}},
+					{"058":{"ja":"ガーディ","en":"Growlithe"},"059":{"ja":"ウインディ","en":"Arcanine"}},
+					{"060":{"ja":"ニョロモ","en":"Poliwag"},"061":{"ja":"ニョロゾ","en":"Poliwhirl"},"062":{"ja":"ニョロボン","en":"Poliwrath"}},
+					{"063":{"ja":"ケーシィ","en":"Abra"},"064":{"ja":"ユンゲラー","en":"Kadabra"},"065":{"ja":"フーディン","en":"Alakazam"}},
+					{"066":{"ja":"ワンリキー","en":"Machop"},"067":{"ja":"ゴーリキー","en":"Machoke"},"068":{"ja":"カイリキー","en":"Machamp"}},
+					{"069":{"ja":"マダツボミ","en":"Bellsprout"},"070":{"ja":"ウツドン","en":"Weepinbell"},"071":{"ja":"ウツボット","en":"Victreebel"}},
+					{"072":{"ja":"メノクラゲ","en":"Tentacool"},"073":{"ja":"ドククラゲ","en":"Tentacruel"}},
+					{"074":{"ja":"イシツブテ","en":"Geodude"},"075":{"ja":"ゴローン","en":"Graveler"},"076":{"ja":"ゴローニャ","en":"Golem"}},
+					{"077":{"ja":"ポニータ","en":"Ponyta"},"078":{"ja":"ギャロップ","en":"Rapidash"}},
+					{"079":{"ja":"ヤドン","en":"Slowpoke"},"080":{"ja":"ヤドラン","en":"Slowbro"}},
+					{"081":{"ja":"コイル","en":"Magnemite"},"082":{"ja":"レアコイル","en":"Magneton"}},
+					{"083":{"ja":"カモネギ","en":"Farfetch'd"}},
+					{"084":{"ja":"ドードー","en":"Doduo"},"085":{"ja":"ドードリオ","en":"Dodrio"}},
+					{"086":{"ja":"パウワウ","en":"Seel"},"087":{"ja":"ジュゴン","en":"Dewgong"}},
+					{"088":{"ja":"ベトベター","en":"Grimer"},"089":{"ja":"ベトベトン","en":"Muk"}},
+					{"090":{"ja":"シェルダー","en":"Shellder"},"091":{"ja":"パルシェン","en":"Cloyster"}},
+					{"092":{"ja":"ゴース","en":"Gastly"},"093":{"ja":"ゴースト","en":"Haunter"},"094":{"ja":"ゲンガー","en":"Gengar"}},
+					{"095":{"ja":"イワーク","en":"Onix"}},
+					{"096":{"ja":"スリープ","en":"Drowzee"},"097":{"ja":"スリーパー","en":"Hypno"}},
+					{"098":{"ja":"クラブ","en":"Krabby"},"099":{"ja":"キングラー","en":"Kingler"}},
+					{"100":{"ja":"ビリリダマ","en":"Voltorb"},"101":{"ja":"マルマイン","en":"Electrode"}},
+					{"102":{"ja":"タマタマ","en":"Exeggcute"},"103":{"ja":"ナッシー","en":"Exeggutor"}},
+					{"104":{"ja":"カラカラ","en":"Cubone"},"105":{"ja":"ガラガラ","en":"Marowak"}},
+					{"106":{"ja":"サワムラー","en":"Hitmonlee"},"107":{"ja":"エビワラー","en":"Hitmonchan"}},
+					{"108":{"ja":"ベロリンガ","en":"Lickitung"}},
+					{"109":{"ja":"ドガース","en":"Koffing"},"110":{"ja":"マタドガス","en":"Weezing"}},
+					{"111":{"ja":"サイホーン","en":"Rhyhorn"},"112":{"ja":"サイドン","en":"Rhydon"}},
+					{"113":{"ja":"ラッキー","en":"Chansey"}},
+					{"114":{"ja":"モンジャラ","en":"Tangela"}},
+					{"115":{"ja":"ガルーラ","en":"Kangaskhan"}},
+					{"116":{"ja":"タッツー","en":"Horsea"},"117":{"ja":"シードラ","en":"Seadra"}},
+					{"118":{"ja":"トサキント","en":"Goldeen"},"119":{"ja":"アズマオウ","en":"Seaking"}},
+					{"120":{"ja":"ヒトデマン","en":"Staryu"},"121":{"ja":"スターミー","en":"Starmie"}},
+					{"122":{"ja":"バリヤード","en":"Mr. Mime"}},
+					{"123":{"ja":"ストライク","en":"Scyther"}},
+					{"124":{"ja":"ルージュラ","en":"Jynx"}},
+					{"125":{"ja":"エレブー","en":"Electabuzz"}},
+					{"126":{"ja":"ブーバー","en":"Magmar"}},
+					{"127":{"ja":"カイロス","en":"Pinsir"}},
+					{"128":{"ja":"ケンタロス","en":"Tauros"}},
+					{"129":{"ja":"コイキング","en":"Magikarp"},"130":{"ja":"ギャラドス","en":"Gyarados"}},
+					{"131":{"ja":"ラプラス","en":"Lapras"}},
+					{"132":{"ja":"メタモン","en":"Ditto"}},
+					{"133":{"ja":"イーブイ","en":"Eevee"},"134":{"ja":"シャワーズ","en":"Vaporeon"},"135":{"ja":"サンダース","en":"Jolteon"},"136":{"ja":"ブースター","en":"Flareon"}},
+					{"137":{"ja":"ポリゴン","en":"Porygon"}},
+					{"138":{"ja":"オムナイト","en":"Omanyte"},"139":{"ja":"オムスター","en":"Omastar"}},
+					{"140":{"ja":"カブト","en":"Kabuto"},"141":{"ja":"カブトプス","en":"Kabutops"}},
+					{"142":{"ja":"プテラ","en":"Aerodactyl"}},
+					{"143":{"ja":"カビゴン","en":"Snorlax"}},
+					{"144":{"ja":"フリーザー","en":"Articuno"},"145":{"ja":"サンダー","en":"Zapdos"},"146":{"ja":"ファイヤー","en":"Moltres"}},
+					{"147":{"ja":"ミニリュウ","en":"Dratini"},"148":{"ja":"ハクリュー","en":"Dragonair"},"149":{"ja":"カイリュー","en":"Dragonite"}},
+					{"150":{"ja":"ミュウツー","en":"Mewtwo"}},
+					{"151":{"ja":"ミュウ","en":"Mew"}}
+				]
+			}
+		</script>
+	</body>
+</html>

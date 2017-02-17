@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="ja" lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Halfwidth Katakana Convert</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				textarea{
+					box-sizing:border-box;
+					width:100%;
+				}
+				output{
+					white-space:pre;
+					overflow-wrap:break-word;
+					word-wrap:break-word;
+				}
+			}
+			@media screen and (min-width:640px){
+				section{
+					width:50%;
+					float:left;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<h1>Input</h1>
+			<div><textarea cols="80" rows="25" autofocus="autofocus" inputmode="katakana" id="input"></textarea></div>
+		</section>
+		<section>
+			<h1>Output</h1>
+			<div><output id="output" for="input"></output></div>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var worker=new Worker(URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"})));
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+					document.getElementById("input").addEventListener("input",function(e){
+						worker.postMessage(e.target.value);
+					});
+					worker.addEventListener("message",function(e){
+						document.getElementById("output").value=e.data;
+					});
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var kana={
+						"　":"ﾠ",
+						"、":"､",
+						"。":"｡",
+						"「":"｢",
+						"」":"｣",
+						"ァ":"ｧ",
+						"ア":"ｱ",
+						"ィ":"ｨ",
+						"イ":"ｲ",
+						"ゥ":"ｩ",
+						"ウ":"ｳ",
+						"ェ":"ｪ",
+						"エ":"ｴ",
+						"ォ":"ｫ",
+						"オ":"ｵ",
+						"カ":"ｶ",
+						"ガ":"ｶﾞ",
+						"キ":"ｷ",
+						"ギ":"ｷﾞ",
+						"ク":"ｸ",
+						"グ":"ｸﾞ",
+						"ケ":"ｹ",
+						"ゲ":"ｹﾞ",
+						"コ":"ｺ",
+						"ゴ":"ｺﾞ",
+						"サ":"ｻ",
+						"ザ":"ｻﾞ",
+						"シ":"ｼ",
+						"ジ":"ｼﾞ",
+						"ス":"ｽ",
+						"ズ":"ｽﾞ",
+						"セ":"ｾ",
+						"ゼ":"ｾﾞ",
+						"ソ":"ｿ",
+						"ゾ":"ｿﾞ",
+						"タ":"ﾀ",
+						"ダ":"ﾀﾞ",
+						"チ":"ﾁ",
+						"ヂ":"ﾁﾞ",
+						"ッ":"ｯ",
+						"ツ":"ﾂ",
+						"ヅ":"ﾂﾞ",
+						"テ":"ﾃ",
+						"デ":"ﾃﾞ",
+						"ト":"ﾄ",
+						"ド":"ﾄﾞ",
+						"ナ":"ﾅ",
+						"ニ":"ﾆ",
+						"ヌ":"ﾇ",
+						"ネ":"ﾈ",
+						"ノ":"ﾉ",
+						"ハ":"ﾊ",
+						"バ":"ﾊﾞ",
+						"パ":"ﾊﾟ",
+						"ヒ":"ﾋ",
+						"ビ":"ﾋﾞ",
+						"ピ":"ﾋﾟ",
+						"フ":"ﾌ",
+						"ブ":"ﾌﾞ",
+						"プ":"ﾌﾟ",
+						"ヘ":"ﾍ",
+						"ベ":"ﾍﾞ",
+						"ペ":"ﾍﾟ",
+						"ホ":"ﾎ",
+						"ボ":"ﾎﾞ",
+						"ポ":"ﾎﾟ",
+						"マ":"ﾏ",
+						"ミ":"ﾐ",
+						"ム":"ﾑ",
+						"メ":"ﾒ",
+						"モ":"ﾓ",
+						"ャ":"ｬ",
+						"ヤ":"ﾔ",
+						"ュ":"ｭ",
+						"ユ":"ﾕ",
+						"ョ":"ｮ",
+						"ヨ":"ﾖ",
+						"ラ":"ﾗ",
+						"リ":"ﾘ",
+						"ル":"ﾙ",
+						"レ":"ﾚ",
+						"ロ":"ﾛ",
+						"ワ":"ﾜ",
+						"ヲ":"ｦ",
+						"ン":"ﾝ",
+						"ヴ":"ｳﾞ",
+						"ヷ":"ﾜﾞ",
+						"ヺ":"ｦﾞ",
+						"・":"･",
+						"ー":"ｰ"
+					};
+					var str=e.data,
+						i;
+					for(i in kana){
+							str=str.replace(RegExp(i,"g"),kana[i]);
+					}
+					postMessage(str);
+				});
+			}());
+		</script>
+	</body>
+</html>

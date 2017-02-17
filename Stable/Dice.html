@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Dice</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				select{
+					width:100%;
+					box-sizing:border-box;
+				}
+				output{
+					display:flex;
+					flex-wrap:wrap;
+					justify-content:space-around;
+					font-family:serif;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<section>
+			<select id="dice-type">
+				<option value="[[&quot;⚀&quot;,&quot;⚁&quot;,&quot;⚂&quot;,&quot;⚃&quot;,&quot;⚄&quot;,&quot;⚅&quot;]]" selected="selected">🎲 x1</option>
+				<option value="[[&quot;⚀&quot;,&quot;⚁&quot;,&quot;⚂&quot;,&quot;⚃&quot;,&quot;⚄&quot;,&quot;⚅&quot;],[&quot;⚀&quot;,&quot;⚁&quot;,&quot;⚂&quot;,&quot;⚃&quot;,&quot;⚄&quot;,&quot;⚅&quot;]]">🎲 x2</option>
+				<option value="[[&quot;⚀&quot;,&quot;⚁&quot;,&quot;⚂&quot;,&quot;⚃&quot;,&quot;⚄&quot;,&quot;⚅&quot;],[&quot;⚀&quot;,&quot;⚁&quot;,&quot;⚂&quot;,&quot;⚃&quot;,&quot;⚄&quot;,&quot;⚅&quot;],[&quot;⚀&quot;,&quot;⚁&quot;,&quot;⚂&quot;,&quot;⚃&quot;,&quot;⚄&quot;,&quot;⚅&quot;]]">🎲 x3</option>
+				<option value="[[1,2,3,4]]">Tetrahedron x1</option>
+				<option value="[[1,2,3,4,5,6]]">Cube x1</option>
+				<option value="[[1,2,3,4,5,6,7,8]]">Octahedron x1</option>
+				<option value="[[1,2,3,4,5,6,7,8,9,10,11,12]]">Dodecahedron x1</option>
+				<option value="[[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]]">Icosahedron x1</option>
+				<option value="[[&quot;⑩&quot;,&quot;○&quot;]]">Coin x1</option>
+				<option value="[[&quot;⑩&quot;,&quot;○&quot;],[&quot;⑩&quot;,&quot;○&quot;],[&quot;⑩&quot;,&quot;○&quot;]]">Coin x3</option>
+				<option disabled="disabled" name="user-setting">User setting</option>
+			</select>
+		</section>
+		<section>
+			<output id="output"></output>
+		</section>
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					function throwDice(){
+						var i;
+						if(!flag.throwing&&!flag.error){
+							flag.throwing=true;
+							i=10;
+							var interval=setInterval(function(){
+								if(i--){
+									worker.postMessage({"hash":hash});
+								}else{
+									clearInterval(interval);
+									flag.throwing=false;
+								}
+							},50);
+						}
+					}
+					var a=document.createElement("a"),
+						blob=URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"})),
+						worker=new Worker(blob),
+						style=document.styleSheets[0].cssRules[0],
+						diceType=document.getElementById("dice-type"),
+						userSetting=diceType.namedItem("user-setting")||document.getElementsByName("user-setting")[0],
+						output=document.getElementById("output"),
+						flag={};
+					var hash,span;
+					a.href=location.pathname.split("/").pop();
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(a).appendChild(document.createTextNode(document.title));
+					addEventListener("resize",function(){
+						/*
+							flag.resized&&style.deleteRule(style.cssRules.length-1);
+							style.insertRule("output{font-size:"+document.body.clientWidth/4+"px;}",style.cssRules.length);
+							flag.resized=true;
+						*/
+						output.style.fontSize=document.body.clientWidth/4+"px";
+					});
+					addEventListener("hashchange",function(){
+						if(location.hash){
+							var param,i;
+							"encoded" in flag||(flag.encoded=/%[\da-f]{2}/i.test(location.hash)); //iOS
+							param=(flag.encoded?decodeURI(location.hash):location.hash).replace("#",""); //iOS
+							flag.error=false;
+							try{
+								hash=JSON.parse(param);
+							}catch(e){
+								flag.error=true;
+								console.error(e.message);
+							}
+							if(!flag.error){
+								userSetting.disabled=true;
+								diceType.value=param;
+								if(!diceType.value){
+									userSetting.disabled=false;
+									userSetting.select=true;
+									userSetting.defaultSelected=true;
+								}
+								worker.postMessage({"hash":hash});
+							}
+						}
+					});
+					diceType.addEventListener("change",function(e){
+						var value=e.target.value;
+						location.hash="#"+value;
+						if(flag.encoded!==false){ //iOS
+							"encoded" in flag||(flag.encoded=/%[\da-f]{2}/i.test(location.hash));
+							flag.encoded&&(location.hash="#"+encodeURI(value));
+						}
+					});
+					worker.addEventListener("message",function(e){
+						var dice=e.data.dice,
+							df=document.createDocumentFragment();
+						var i;
+						while(output.hasChildNodes()){
+							output.removeChild(output.firstChild);
+						}
+						for(i=-1;++i<dice.length;){
+							span=span?span.cloneNode():document.createElement("span");
+							df.appendChild(span).appendChild(document.createTextNode(dice[i]));
+						}
+						output.appendChild(df);
+						output.hasChildNodes()||output.appendChild(document.createTextNode("🎲"));
+					});
+					addEventListener("keydown",function(e){
+						(e.keyCode===13||e.keyCode===32)&&throwDice(e);
+					});
+					output.addEventListener("ontouchend" in window?"touchend":"click",throwDice);
+					dispatchEvent(new Event("resize"));
+					location.hash?dispatchEvent(new Event("hashchange")):diceType.dispatchEvent(new Event("change"));
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(e){
+					var hash=e.data.hash,
+						dice=[];
+					var i;
+					for(i=-1;++i<hash.length;){
+						dice[i]=hash[i][Math.random()*hash[i].length|0];
+					}
+					postMessage({"dice":dice});
+				});
+			}());
+		</script>
+	</body>
+</html>

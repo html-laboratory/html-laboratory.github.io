@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+	<head>
+		<meta charset="UTF-8" />
+		<title>iOS Apps Search</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<meta name="referrer" content="never" />
+		<link rel="dns-prefetch" href="https://itunes.apple.com" />
+		<link rel="dns-prefetch" href="https://www.google.com" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+				fieldset{
+					margin:0;
+				}
+				#query,select,#search{
+					box-sizing:border-box;
+					width:100%;
+				}
+				#setting>*{
+					display:inline-block;
+				}
+				#search{
+					display:block;
+					text-align:center;
+					/*
+						border-width:thin;
+						border-style:solid;
+						background-color:#ccc;
+					*/
+					-webkit-appearance:button;
+					-moz-appearance:button;
+					-ms-appearance:button;
+					appearance:button;
+				}
+				#collections>ul{
+					margin:0;
+				}
+			}
+			@media screen and (min-width:640px){
+				#collections>ul{
+					padding:0;
+				}
+				#collections>ul>li{
+					display:inline-block;
+				}
+				#collections>ul>li:not(:first-of-type){
+					margin-left:0.25em;
+				}
+				#collections>ul>li:not(:last-of-type){
+					margin-right:0.25em;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<form>
+			<fieldset>
+				<legend>Query</legend>
+				<div>
+					<input type="search" id="query" autofocus="autofocus" required="required" />
+				</div>
+				<div>
+					<select id="lang">
+						<option value="us" lang="en-US">English</option>
+						<option value="jp" lang="ja-JP" selected="selected">日本語</option>
+						<option value="cn" lang="zh-CN">中文</option>
+					</select>
+					<select id="category">
+						<option value="" selected="selected">CATEGORY</option>
+						<option>BOOKS</option>
+						<option>BUSINESS</option>
+						<option>CATALOGS</option>
+						<option>EDUCATION</option>
+						<option>ENTERTAINMENT</option>
+						<option>FINANCE</option>
+						<option>FOOD_&amp;_DRINK</option>
+						<option>GAMES</option>
+						<option>HEALTH_&amp;_FITNESS</option>
+						<option>LIFESTYLE</option>
+						<option>MAGAZINES_&amp;_NEWSPAPERS</option>
+						<option>MEDICAL</option>
+						<option>MUSIC</option>
+						<option>NAVIGATION</option>
+						<option>NEWS</option>
+						<option>PHOTO_&amp;_VIDEO</option>
+						<option>PRODUCTIVITY</option>
+						<option>REFERENCE</option>
+						<option>SHOPPING</option>
+						<option>SOCIAL_NETWORKING</option>
+						<option>SPORTS</option>
+						<option>TRAVELS</option>
+						<option>UTILITIES</option>
+						<option>WEATHER</option>
+					</select>
+					<div id="setting">
+						<label for="free"><input type="checkbox" id="free">FREE</label>
+						<label for="non_in-app_purchases"><input type="checkbox" id="non_in-app_purchases">NON_IN-APP_PURCHASES</label>
+						<label for="universal_app"><input type="checkbox" id="universal_app">UNIVERSAL_APP</label>
+						<label for="apple_watch"><input type="checkbox" id="apple_watch">APPLE_WATCH</label>
+						<label for="apple_tv"><input type="checkbox" id="apple_tv">APPLE_TV</label>
+						<label for="healthkit"><input type="checkbox" id="healthkit">HAELTHKIT</label>
+						<label for="icloud_drive"><input type="checkbox" id="icloud_drive">ICLOUD_DRIVE</label>
+						<label for="3d_touch"><input type="checkbox" id="3d_touch">3D_TOUCH</label>
+						<label for="touch_id"><input type="checkbox" id="touch_id">TOUCH_ID</label>
+						<label for="homekit"><input type="checkbox" id="homekit">HOMEKIT</label>
+						<label for="game_center"><input type="checkbox" id="game_center">GAME_CENTER</label>
+						<label for="chromecast"><input type="checkbox" id="chromecast">CHROMECAST</label>
+					</div>
+				</div>
+			</fieldset>
+			<a href="#" id="search">SEARCH</a>
+			<fieldset>
+				<legend>Collections</legend>
+				<div id="collections">COLLECTIONS</div>
+			</fieldset>
+		</form>
+		<script async="async">
+			'use strict';
+			(function(){
+				addEventListener('load',function main(e){
+					function createQuery(e){
+						var language=lang.value,
+							dic=dictionary[language],
+							event={
+								'change':e.type==='change',
+								'keydown':e.type==='keydown'&&e.keyCode===13
+							},
+							target=e.target,
+							element={
+								'tagName':target.tagName,
+								'type':target.type,
+								'checked':target.checked,
+								'value':target.value,
+								'id':target.id
+							},
+							q=[];
+						var i,flag;
+						if(event.change||event.keydown){
+							if(element.tagName==='SELECT'&&element.value){
+								status[element.id]=`"${dic.category.label}: ${element.value}"`;
+							}else if(element.tagName==='INPUT'&&(element.type==='checkbox'&&element.checked)||(element.type!=='checkbox'&&element.value)){
+								status[element.id]=element.value;
+							}else{
+								delete status[element.id];
+							}
+							for(i in status){
+								q[q.length]=status[i];
+								flag||dic.setting[i]&&dic.setting[i].notMacAppStore&&(flag=true);
+							}
+							if(q.length){
+								flag||(q[q.length]='-intitle:"Mac App Store"');
+								q[q.length]=`site:itunes.apple.com/${language}/app/`;
+								q=`https://www.google.com/webhp?#q=${encodeURIComponent(q.join(' '))}`;
+							}else{
+								q='#';
+							}
+							//console.log(decodeURIComponent(q));
+							if(event.change){
+								search.href=q;
+								q==='#'?search.rel&&search.removeAttribute('rel'):search.rel||(search.rel='external');
+							}else if(event.keydown){
+								e.preventDefault();
+								location.href=q;
+							}
+						}
+					}
+					var dictionary={
+							'us':{
+								'category':{
+									'label':'Category',
+									'value':[
+										'Books',
+										'Business',
+										'Catalogs',
+										'Education',
+										'Entertainment',
+										'Finance',
+										'Food & Drink',
+										'Games',
+										'Health & Fitness',
+										'Lifestyle',
+										'Magazines & Newspapers',
+										'Medical',
+										'Music',
+										'Navigation',
+										'News',
+										'Photo & Video',
+										'Productivity',
+										'Reference',
+										'Shopping',
+										'Social Networking',
+										'Sports',
+										'Travel',
+										'Utilities',
+										'Weather'
+									]
+								},
+								'setting':{
+									'free':{
+										'label':'Free(Experiment)',
+										'value':'"Free"'
+									},
+									'non_in-app_purchases':{
+										'label':'Non In-App Purchases',
+										'value':'-"Top In-App Purchases"'
+									},
+									'universal_app':{
+										'label':'Universal App',
+										'value':'"This app is designed for both iPhone and iPad"',
+										'notMacAppStore':true
+									},
+									'apple_watch':{
+										'label':'Apple Watch',
+										'value':'"Offers Apple Watch App for iPhone"',
+										'notMacAppStore':true
+									},
+									'apple_tv':{
+										'label':'Apple TV',
+										'value':'"Apple TV: Yes"',
+										'notMacAppStore':true
+									},
+									'healthkit':{
+										'label':'HealthKit',
+										'value':'"HealthKit"|"Health Kit"'
+									},
+									'icloud_drive':{
+										'label':'iCloud Drive',
+										'value':'"iCloud Drive"|"iCloudDrive"'
+									},
+									'3d_touch':{
+										'label':'3D Touch',
+										'value':'"3D Touch"'
+									},
+									'touch_id':{
+										'label':'Touch ID',
+										'value':'"TouchID"|"Touch ID"'
+									},
+									'homekit':{
+										'label':'HomeKit',
+										'value':'"HomeKit"'
+									},
+									'game_center':{
+										'label':'Game Center',
+										'value':'"Game Center"'
+									},
+									'chromecast':{
+										'label':'Chromecast',
+										'value':'"Chromecast"|"Google Cast"'
+									},
+								},
+								'search':'Search',
+								'collection':{
+									'Essentials':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=us&fcId=945453637&id=947024161&mt=8',
+									'Editors\' Choice':'https://itunes.apple.com/us/collection/editors-choice/id25204?fcId=531794756&mt=8',
+									'New to the App Store?':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=us&fcId=917798518&id=924613226&mt=8',
+									'App Collections':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewRoom?fcId=555468562&mt=8&ls=1',
+									'Game Collections':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewRoom?fcId=566422216&ls=1&mt=8',
+									'Works with Apple HomeKit':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=us&fcId=1036411064&id=906458131&mt=8',
+									'Apps for Wallet':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=us&fcId=553700697&id=716963884&mt=8',
+									'Buy with Apple Pay':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=us&fcId=923561527&id=927673507&mt=8',
+									'Accessibility':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=us&fcId=1015084163&id=1018436882&mt=8'
+								}
+							},
+							'jp':{
+								'category':{
+									'label':'カテゴリ',
+									'value':[
+										'ブック',
+										'ビジネス',
+										'カタログ',
+										'教育',
+										'エンターテインメント',
+										'ファイナンス',
+										'フード／ドリンク',
+										'ゲーム',
+										'ヘルスケア／フィットネス',
+										'ライフスタイル',
+										'雑誌・新聞',
+										'メディカル',
+										'ミュージック',
+										'ナビゲーション',
+										'ニュース',
+										'写真／ビデオ',
+										'仕事効率化',
+										'辞書／辞典／その他',
+										'ショッピング',
+										'ソーシャルネットワーキング',
+										'スポーツ',
+										'旅行',
+										'ユーティリティ',
+										'天気'
+									]
+								},
+								'setting':{
+									'free':{
+										'label':'無料(実験)',
+										'value':'"無料"'
+									},
+									'non_in-app_purchases':{
+										'label':'App 内課金なし',
+										'value':'-"トップ App 内課金"'
+									},
+									'universal_app':{
+										'label':'ユニバーサルアプリ',
+										'value':'"この App は iPhone、iPad の両方に対応しています。"',
+										'notMacAppStore':true
+									},
+									'apple_watch':{
+										'label':'Apple Watch',
+										'value':'"iPhone 対応 Apple Watch App が有ります"',
+										'notMacAppStore':true
+									},
+									'apple_tv':{
+										'label':'Apple TV',
+										'value':'"Apple TV: はい"',
+										'notMacAppStore':true
+									},
+									'healthkit':{
+										'label':'HealthKit',
+										'value':'"HealthKit"|"Health Kit"'
+									},
+									'icloud_drive':{
+										'label':'iCloud Drive',
+										'value':'"iCloud Drive"|"iCloudDrive"'
+									},
+									'3d_touch':{
+										'label':'3D Touch',
+										'value':'"3D Touch"'
+									},
+									'touch_id':{
+										'label':'Touch ID',
+										'value':'"TouchID"|"Touch ID"'
+									},
+									'homekit':{
+										'label':'HomeKit',
+										'value':'"HomeKit"'
+									},
+									'game_center':{
+										'label':'Game Center',
+										'value':'"Game Center"'
+									},
+									'chromecast':{
+										'label':'Chromecast',
+										'value':'"Chromecast"|"Google Cast"'
+									},
+								},
+								'search':'検索',
+								'collection':{
+									'エッセンシャル':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=jp&fcId=948067531&mt=8',
+									'スタッフのおすすめ':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=jp&fcId=531895568&id=890979045&mt=8',
+									'App Store を始めよう':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=jp&fcId=923484494&id=924613226&mt=8',
+									'App コレクション':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewRoom?fcId=557224925&mt=8&ls=1',
+									'ゲーム コレクション':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewRoom?fcId=538044377&mt=8',
+									'Wallet 対応 App':null,
+									'防災関連アプリケーション':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=jp&fcId=1001843879&id=1020487764&mt=8'
+								}
+							},
+							'cn':{
+								'category':{
+									'label':'类别',
+									'value':[
+										'图书',
+										'商务',
+										'商品指南',
+										'教育',
+										'娱乐',
+										'财务',
+										'美食佳饮',
+										'游戏',
+										'健康健美',
+										'生活',
+										'报刊杂志',
+										'医疗',
+										'音乐',
+										'导航',
+										'新闻',
+										'摄影与录像',
+										'效率',
+										'参考',
+										'购物',
+										'社交',
+										'体育',
+										'旅游',
+										'工具',
+										'天气'
+									]
+								},
+								'setting':{
+									'free':{
+										'label':'免费(实验)',
+										'value':'"免费"'
+									},
+									'non_in-app_purchases':{
+										'label':'非 App 内购买项目',
+										'value':'-"热门 App 内购买项目"'
+									},
+									'universal_app':{
+										'label':'Universal App',
+										'value':'"此 App 专为 iPhone 和 iPad 设计"',
+										'notMacAppStore':true
+									},
+									'apple_watch':{
+										'label':'Apple Watch',
+										'value':'"提供 iPhone 版 Apple Watch App"',
+										'notMacAppStore':true
+									},
+									'apple_tv':{
+										'label':'Apple TV',
+										'value':'"Apple TV: 有"',
+										'notMacAppStore':true
+									},
+									'healthkit':{
+										'label':'HealthKit',
+										'value':'"HealthKit"|"Health Kit"'
+									},
+									'icloud_drive':{
+										'label':'iCloud Drive',
+										'value':'"iCloud Drive"|"iCloudDrive"'
+									},
+									'3d_touch':{
+										'label':'3D Touch',
+										'value':'"3D Touch"'
+									},
+									'touch_id':{
+										'label':'Touch ID',
+										'value':'"TouchID"|"Touch ID"'
+									},
+									'homekit':{
+										'label':'HomeKit',
+										'value':'"HomeKit"'
+									},
+									'game_center':{
+										'label':'Game Center',
+										'value':'"Game Center"'
+									},
+									'chromecast':{
+										'label':'Chromecast',
+										'value':'"Chromecast"|"Google Cast"'
+									}
+								},
+								'search':'搜索',
+								'collection':{
+									'精华':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=cn&fcId=946277289&id=947024161&mt=8',
+									'编辑选荐':'https://itunes.apple.com/cn/collection/bian-ji-xuan-jian/id29099?fcId=531885823&mt=8',
+									'App Store 新手？':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewMultiRoom?cc=cn&fcId=923542808&id=924613226&mt=8',
+									'APP专题':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewRoom?fcId=557225649&mt=8&ls=1',
+									'游戏专题':'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewRoom?fcId=886047974&mt=8'
+								}
+							}
+						},
+						lang=document.getElementById('lang'),
+						query=document.getElementById('query'),
+						category=document.getElementById('category'),
+						setting=document.getElementById('setting'),
+						search=document.getElementById('search'),
+						changeEvent=new Event('change'),
+						status={};
+					document.body.insertBefore(document.createElement('header'),document.body.firstChild).appendChild(document.createElement('h1')).appendChild(document.createTextNode(document.title));
+					[query,category,setting].forEach(function(element){
+						element.addEventListener('change',createQuery);
+						element.addEventListener('keydown',createQuery);
+					});
+					lang.addEventListener('keydown',createQuery);
+					lang.addEventListener('change',function(e){
+						var html=document.documentElement,
+							dic=dictionary[e.target.value],
+							collections=document.getElementById('collections'),
+							ul=document.createElement('ul'),
+							template={
+								'a':document.createElement('a'),
+								'li':document.createElement('li')
+							};
+						var i,a,li,item;
+						html.setAttribute("xml:lang",html.lang=lang.selectedOptions[0].lang.substr(0,2));
+						category.options[0].text=dic.category.label;
+						for(i=category.options.length;i-->1;){
+							category.options[i].text=dic.category.value[i-1];
+						}
+						status.category&&(status.category=`"${dic.category.label}: ${category.value}"`);
+						for(i in dic.setting){
+							status[i]&&(status[i]=dic.setting[i].value);
+							item=setting.querySelector(`[for="${i}"]`);
+							item.replaceChild(document.createTextNode(dic.setting[i].label),item.lastChild);
+							item.firstElementChild.value=dic.setting[i].value;
+						}
+						search.replaceChild(document.createTextNode(dic.search),search.firstChild);
+						for(i in dic.collection){
+							if(dic.collection[i]){
+								li=template.li.cloneNode();
+								a=template.a.cloneNode();
+								a.appendChild(document.createTextNode(i));
+								a.href=dic.collection[i];
+								li.appendChild(a);
+								ul.appendChild(li);
+							}
+						}
+						collections.replaceChild(ul,collections.firstChild);
+						query.dispatchEvent(changeEvent);
+					});
+					lang.dispatchEvent(new Event('change'));
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+	</body>
+</html>

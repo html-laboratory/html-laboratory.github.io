@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Worker Demo</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no,email=no,address=no" />
+		<style>
+			@media all{
+				body{
+					background-color:Window;
+					color:WindowText;
+				}
+				::selection{
+					background-color:Highlight;
+					color:HighlightText;
+				}
+			}
+		</style>
+	</head>
+	<body role="application">
+		<script async="async">
+			"use strict";
+			(function(){
+				addEventListener("load",function main(e){
+					var settings={"TYPE":0,"num":10},
+						blob=URL.createObjectURL(new Blob([document.getElementById("worker").firstChild.nodeValue],{"type":"text/javascript"}));
+					var i,j;
+					document.body.insertBefore(document.createElement("header"),document.body.firstChild).appendChild(document.createElement("h1")).appendChild(document.createTextNode(document.title));
+
+					if(settings.TYPE===0){
+						var worker=new Worker(blob);
+						worker.postMessage({"TYPE":settings.TYPE,"num":settings.num});
+						worker.addEventListener("message",function(event){
+							console.log(event.data);
+							if(!--settings.num){
+								event.target.terminate();
+								URL.revokeObjectURL(blob);
+							}
+						});
+					}else if(settings.TYPE===1){
+						var worker=new Worker(blob);
+						for(i=0;i<settings.num;i++){
+							worker.postMessage({"TYPE":settings.TYPE,"num":i});
+						}
+						worker.addEventListener("message",function(event){
+							console.log(event.data);
+							if(event.data+1>=settings.num){
+								event.target.terminate();
+								URL.revokeObjectURL(blob);
+							}
+						});
+					}else if(settings.TYPE===2){
+						var worker=[],j=0;
+						for(i=0;i<settings.num;i++){
+							worker[i]=new Worker(blob);
+							worker[i].postMessage({"TYPE":settings.TYPE,"num":i});
+							worker[i].addEventListener("message",function(event){
+								console.log(event.data);
+								event.target.terminate();
+								if(++j>=settings.num){
+									URL.revokeObjectURL(blob);
+								}
+							});
+						}
+					}
+
+					e.currentTarget.removeEventListener(e.type,main);
+				});
+			}());
+		</script>
+		<script id="worker" type="text/js-worker">
+			"use strict";
+			(function(){
+				addEventListener("message",function(event){
+					if(event.data.TYPE===0){
+						for(var i=0;i<event.data.num;i++){
+							postMessage(event.data.num);
+						}
+					}else if(event.data.TYPE===1){
+						postMessage(event.data.num);
+					}else if(event.data.TYPE===2){
+						postMessage(event.data.num);
+					}
+				});
+			}());
+		</script>
+	</body>
+</html>
